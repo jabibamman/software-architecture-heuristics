@@ -6,73 +6,51 @@
 ---
 
 ## Context  
-Le Parking Reservation System nécessite une base de données relationnelle capable de :
+The Parking Reservation System requires a relational database that can:
 
-1. Stocker les **réservations** (avec clé composite : `slotId` + `dateRange`) et leur **historique** complet.  
-2. Gérer les **utilisateurs** (employés, secrétaires, managers) et leurs **rôles**.  
-3. Assurer la **cohérence transactionnelle** (ex. création + publication MQ).  
-4. Prendre en charge de **l’évolution du schéma** (migrations) au fil des sprints.
+1. Store **reservations** (with composite key: `slotId` + `dateRange`) and their **complete history**.  
+2. Manage **users** (employees, secretaries, managers) and their **roles**.  
+3. Ensure **transactional consistency** (e.g., creation + MQ publication).  
+4. Handle **schema evolution** (migrations) across sprints.
 
-Critères évalués :
-
-- Maturité et support de TypeScript  
-- Intégration avec NestJS  
-- Outils de migration / seed  
-- Performance & fiabilité en local et production  
-- Courbe d’apprentissage pour l’équipe  
+### Evaluation criteria:
+- Maturity and TypeScript support  
+- Integration with NestJS  
+- Migration/seed tools  
+- Performance & reliability (local and production)  
+- Learning curve for the team  
 
 ---
 
 ## Decision  
-Nous choisissons **PostgreSQL** comme SGBD et **TypeORM** comme ORM.
+We choose **PostgreSQL** as the DBMS and **TypeORM** as the ORM.
 
-### Pourquoi PostgreSQL ?  
-- **Relationnel mature** : transactions ACID, clés composites, contraintes d’intégrité.  
-- **JSON & indexes** : flexibilité pour stocker des métadonnées (ex. `metadata` de réservation).  
-- **Outils de migration** : `typeorm` migration CLI ou `typeorm-migrations` intégrées.  
-- **Communauté & fiabilité** : largement adopté en entreprise et open-source.
+### Why PostgreSQL?  
+- **Mature relational database**: ACID transactions, composite keys, integrity constraints.  
+- **JSON & indexing**: flexibility for storing metadata (e.g., reservation metadata).  
+- **Migration tools**: built-in TypeORM migration CLI or integrated extensions.  
+- **Community & reliability**: widely adopted in enterprise and open-source.
 
-### Pourquoi TypeORM ?  
-- **Intégration native avec NestJS** via `@nestjs/typeorm`.  
-- **Modèles entité-relation** en TypeScript (decorators).  
-- **Data Mapper & Active Record** selon besoin.  
-- **Support des migrations** : génération automatique et CLI robuste.  
-- **Large écosystème** : support de transactions et de requêtes avancées.
+### Why TypeORM?  
+- **Native NestJS integration** via `@nestjs/typeorm`.  
+- **TypeScript entity-relational models** (decorators).  
+- **Data Mapper & Active Record patterns** as needed.  
+- **Migration support**: automatic generation and robust CLI.  
+- **Ecosystem maturity**: supports transactions and complex queries.
 
 ---
 
 ## Consequences
 
-### Avantages  
-- **Productivité** : scaffolding rapide (`Entity`, `Repository`, `Module`).  
-- **Migrations** automatisées pour suivre l’évolution du modèle.  
-- **Type-safety** end-to-end sur les entités et relations.  
-- **Maintenance** facilitée grâce à la documentation et aux types.
+### Advantages  
+- **Productivity**: quick scaffolding of `Entity`, `Repository`, `Module`.  
+- **Automated migrations** to track model evolution.  
+- **End-to-end type safety** on entities and relations.  
+- **Simplified maintenance** thanks to documentation and strong typing.
 
-### Inconvénients  
-- **Performance** : overhead de l’ORM sur de très gros volumes (mais notre charge est modérée).  
-- **Courbe d’apprentissage** : certains patterns TypeORM (lazy relations, QueryBuilder) demandent de l’entraînement.  
-- **Configurabilité** : configuration parfois verbeuse (options de connexion, entités, migrations).
+### Disadvantages  
+- **Performance overhead** of the ORM on very large volumes (our load is moderate).  
+- **Learning curve**: some TypeORM patterns (lazy relations, QueryBuilder) require practice.  
+- **Configuration verbosity**: sometimes verbose setup (connection options, entities, migrations).
 
 ---
-
-## Actions suivantes  
-1. Ajouter le module `DatabaseModule` dans `apps/parking-app-back/src` :  
-   ```ts
-   TypeOrmModule.forRootAsync({ /* config PostgreSQL via .env */ })
-
-2. Créer les premières entités migrées :
-
-- Reservation (clé slotId + startDate + endDate)
-
-- User (id, email, role)
-
-3. Générer et tester une migration initiale :
-
-`pnpm --filter parking-app-back run typeorm migration:generate -n InitSchema`
-
-`pnpm --filter parking-app-back run typeorm migration:run`
-
-4. Documenter la stratégie de seed (données de test pour parking slots A-F).
-
-5. Mettre en place un job CI pour valider la migration automatique en pipeline.

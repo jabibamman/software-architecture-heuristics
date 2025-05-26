@@ -6,44 +6,42 @@
 ---
 
 ## Context  
-Le système **Parking Reservation** doit :
+The **Parking Reservation** system must:
 
-1. **Faire respecter des règles métiers strictes – SUPER IMPORTANT**  
-   - Durée maximale : **5 jours ouvrés** pour les employés, **30 jours** pour les managers.  
-   - **Check-in** obligatoire avant **11 h** ; à défaut, la place est libérée.  
-   - Rang **A/F** réservé aux véhicules **électriques** ou **hybrides** (prises murales).  
-   - **Historisation complète** de toutes les réservations et de leurs états.
+1. **Enforce strict business rules – SUPER IMPORTANT**  
+   - Maximum duration: **5 working days** for employees, **30 days** for managers.  
+   - **Check-in** required before **11 AM**; otherwise, the spot is released.  
+   - Rows **A/F** reserved for **electric** or **hybrid** vehicles (wall chargers).  
+   - **Complete history** of all reservations and their state changes.
 
-2. **Exposer plusieurs points d’entrée** :  
-   - API **REST** pour le front Vue 3.  
-   - Endpoint **QR Code** `/checkin/:slotId/:token`.  
-   - **RabbitMQ** pour publier l’événement `ReservationCreated` vers le service d’e-mail.
+2. **Expose multiple entry points**:  
+   - **REST API** for the Vue 3 front-end.  
+   - **QR code endpoint** `/checkin/:slotId/:token`.  
+   - **RabbitMQ** to publish the `ReservationCreated` event to the email service.
 
-3. **Rester testable & évolutif** : changer de SGBD, d’UI ou greffer un moteur heuristique ne doit pas toucher au domaine.
+3. **Remain testable & extensible**: switching the database, UI, or adding a heuristic engine must not affect the domain layer.
 
-4. **Être pédagogique** : chaque membre (et le professeur) doit retrouver rapidement où se loge une règle ou un port.
+4. **Be educational**: every team member (and the professor) should quickly locate business rules or ports in the code.
 
-> **Note d’équipe :** nous avons volontairement laissé **CancelReservation** hors MVP afin de garantir un périmètre livrable en 4 sprints.
-
+> **Team note:** We have intentionally omitted **CancelReservation** from the MVP to maintain a deliverable scope within 4 sprints.
 ---
 
 ## Decision  
-Nous adoptons une **architecture hexagonale** (Ports & Adapters) couplée à **Domain-Driven Design (DDD)**.  
-Les règles vivent dans le **domaine** ; les **Use Cases** orchestrent ces règles via des **Ports** ; les adaptateurs (HTTP, DB, MQ, Cron) implémentent ces ports.
+We adopt a **Hexagonal Architecture** (Ports & Adapters) combined with **Domain-Driven Design (DDD)**.  
+Business rules reside in the **domain**; **Use Cases** orchestrate these rules through **Ports**; adapters (HTTP, DB, MQ, Cron) implement these ports.
 
-### Découpage des couches
+### Layer breakdown
 
-| Couche             | Contenu                                                                           | Dépendances autorisées         |
-|--------------------|-----------------------------------------------------------------------------------|--------------------------------|
-| **Domain**         | Entités, Value Objects, Domain Events, Exceptions                                 | **Aucune** lib externe         |
-| **Application**    | Use Cases, DTOs, Ports (`ReservationRepository`, `NotificationPublisher`)         | Dépend uniquement de Domain    |
-| **Infrastructure** | Implémentations concrètes des ports (TypeORM, AMQP, QR Code), mappers ORM         | Application + libs externes    |
-| **Interface**      | Adapters driving : contrôleurs HTTP, guards, Cron job « 11 h rule »                | Dépend d’Application           |
+| Layer             | Contents                                                                           | Allowed dependencies              |
+|-------------------|------------------------------------------------------------------------------------|-----------------------------------|
+| **Domain**        | Entities, Value Objects, Domain Events, Exceptions                                 | **No** external libraries         |
+| **Application**   | Use Cases, DTOs, Ports (`ReservationRepository`, `NotificationPublisher`)          | Depends only on Domain            |
+| **Infrastructure**| Conrete implementations of ports (TypeORM, AMQP, QR Code), ORM mappers             | Depends on Application + external libs |
+| **Interface**     | Driving adapters: HTTP controllers, guards, Cron job "11 AM rule"                  | Depends on Application            |
 
 ---
 
-## Modules cibles (backend NestJS)
-
+## Target modules (backend NestJS)
 
 ```
 src/modules
@@ -147,8 +145,8 @@ src/modules
 
 ---
 
-## Architecture front (Vue 3 + Vite)
-````
+## Front-end architecture (Vue 3 + Vite)
+```
 apps/parking-app-front
 ├─ public
 │ └─ index.html
@@ -164,35 +162,34 @@ apps/parking-app-front
 └─ vite.config.ts
 ```
 
-- **Tailwind CSS** pour le styling utilitaire.  
-- **Pinia** pour l’état centralisé (filtrer les slots, gérer l’utilisateur).  
-- **Vue Router** pour les vues Employee/Secretary/Manager.  
-- **Services** pour consommer l’API NestJS et gérer les tokens JWT.
-
+- **Tailwind CSS** for utility-first styling.  
+- **Pinia** for centralized state (filter slots, manage user).  
+- **Vue Router** for Employee/Secretary/Manager views.  
+- **Services** to consume the NestJS API and handle JWT tokens.
 
 ---
 
 ## Use Cases MVP
 
-| Use Case                    | Règles appliquées                                                           | Ports utilisés                           |
-|-----------------------------|------------------------------------------------------------------------------|------------------------------------------|
-| **CreateReservation**       | Durée ≤ 5 jours (≤ 30 jours si manager), rang A/F si recharge, disponibilité  | `ReservationRepository`<br>`NotificationPublisher` |
-| **CheckinReservation**      | Doit se faire avant 11 h sinon l’action échoue                                | `ReservationRepository`                  |
-| **ReleaseExpiredReservations** | Cron 11 h : libère toutes les réservations non check-in, publie `ReservationReleased` | `ReservationRepository`<br>`NotificationPublisher` |
+| Use Case                    | Business rules enforced                                                      | Ports used                              |
+|-----------------------------|-------------------------------------------------------------------------------|-----------------------------------------|
+| **CreateReservation**       | Duration ≤ 5 days (≤ 30 days if manager), A/F slot if charging needed, availability | `ReservationRepository`<br>`NotificationPublisher` |
+| **CheckinReservation**      | Must occur before 11 AM; otherwise, action fails                              | `ReservationRepository`                 |
+| **ReleaseExpiredReservations** | Cron at 11 AM: release all non-checked-in reservations; publish `ReservationReleased` | `ReservationRepository`<br>`NotificationPublisher` |
 
 ---
 
 ## Consequences
 
-### Avantages
-- **Tests unitaires rapides** sur Domain & Application, sans I/O.  
-- **Faible couplage** : on peut remplacer la DB, la file de messages ou l’UI sans toucher au domaine.  
-- **Clarté pédagogique** : chaque règle est portée par un Use Case explicite.  
-- **Évolution vers micro-services** : extraction simple des adapters.
+### Advantages
+- **Fast unit testing** of Domain & Application layers, without I/O.  
+- **Low coupling**: DB, MQ, or UI can change without impacting the domain.  
+- **Educational clarity**: each business rule has an explicit Use Case.  
+- **Path to microservices**: easily extract adapters into separate services.
 
-### Inconvénients
-- **Overhead organisationnel** : quatre couches, nombreux dossiers.  
-- **Rigueur nécessaire** : interdiction de mettre de la logique métier dans les contrôleurs.  
-- **Courbe DDD** pour les novices.
+### Disadvantages
+- **Organizational overhead**: four layers plus separate front & back.  
+- **Strict discipline**: business logic must not be in HTTP controllers.  
+- **DDD learning curve** for newcomers.
 
 ---
