@@ -10,7 +10,12 @@
 	  "dev:back": "pnpm --filter parking-app-back start:dev",
 	  "build:back": "pnpm --filter parking-app-back build",
 	  "lint:back": "pnpm --filter parking-app-back lint",
-	  "test:back": "pnpm --filter parking-app-back test"
+	  "test:back": "pnpm --filter parking-app-back test",
+
+	  "dev:front": "pnpm --filter parking-app-front dev",
+	  "build:front": "pnpm --filter parking-app-front build",
+	  "lint:front": "pnpm --filter parking-app-front lint",
+	  "preview:front": "pnpm --filter parking-app-front preview"
 	},
 	"devDependencies": {
 	  "eslint": "^9.0.0",
