@@ -147,6 +147,31 @@ src/modules
 
 ---
 
+## Architecture front (Vue 3 + Vite)
+````
+apps/parking-app-front
+├─ public
+│ └─ index.html
+├─ src
+│ ├─ assets/
+│ ├─ components/
+│ ├─ views/
+│ ├─ router/
+│ ├─ store/
+│ ├─ services/
+│ ├─ composables/
+│ └─ main.ts 
+└─ vite.config.ts
+```
+
+- **Tailwind CSS** pour le styling utilitaire.  
+- **Pinia** pour l’état centralisé (filtrer les slots, gérer l’utilisateur).  
+- **Vue Router** pour les vues Employee/Secretary/Manager.  
+- **Services** pour consommer l’API NestJS et gérer les tokens JWT.
+
+
+---
+
 ## Use Cases MVP
 
 | Use Case                    | Règles appliquées                                                           | Ports utilisés                           |
@@ -169,14 +194,5 @@ src/modules
 - **Overhead organisationnel** : quatre couches, nombreux dossiers.  
 - **Rigueur nécessaire** : interdiction de mettre de la logique métier dans les contrôleurs.  
 - **Courbe DDD** pour les novices.
-
----
-
-## Actions suivantes
-1. **Scaffold** de `src/modules/*` selon l’arbo ci-dessus.  
-2. Implémentation de **CreateReservationUseCase** + tests Jest (vérification 5/30 jours, rang A/F).  
-3. Rédaction de `TypeOrmReservationRepository` + migration initiale.  
-4. Rédaction de **ADR-004 : Database Choice** (PostgreSQL + TypeORM vs Prisma).  
-5. Création des diagrammes C4 (C1 & C2) et dépôt dans `docs/c4/`.
 
 ---
