@@ -1,0 +1,21 @@
+{
+	"name": "software-architecture-heuristics",
+	"version": "1.0.0",
+	"description": "Monorepo for parking reservation system",
+	"private": true,
+	"workspaces": [
+	  "apps/*"
+	],
+	"scripts": {
+	  "dev:back": "pnpm --filter parking-app-back start:dev",
+	  "build:back": "pnpm --filter parking-app-back build",
+	  "lint:back": "pnpm --filter parking-app-back lint",
+	  "test:back": "pnpm --filter parking-app-back test"
+	},
+	"devDependencies": {
+	  "eslint": "^9.0.0",
+	  "prettier": "^3.0.0",
+	  "typescript": "^5.3.3"
+	}
+  }
+  
