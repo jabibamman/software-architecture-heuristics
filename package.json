@@ -3,9 +3,6 @@
 	"version": "1.0.0",
 	"description": "Monorepo for parking reservation system",
 	"private": true,
-	"workspaces": [
-	  "apps/*"
-	],
 	"scripts": {
 	  "dev:back": "pnpm --filter parking-app-back start:dev",
 	  "build:back": "pnpm --filter parking-app-back build",
