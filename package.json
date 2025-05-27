@@ -6,11 +6,13 @@
 	"scripts": {
 	  "dev:back": "pnpm --filter parking-app-back start:dev",
 	  "build:back": "pnpm --filter parking-app-back build",
+	  "start:back": "pnpm --filter parking-app-back start",
 	  "lint:back": "pnpm --filter parking-app-back lint",
 	  "test:back": "pnpm --filter parking-app-back test",
 
 	  "dev:front": "pnpm --filter parking-app-front dev",
 	  "build:front": "pnpm --filter parking-app-front build",
+	  "start:front": "pnpm --filter parking-app-front start",
 	  "lint:front": "pnpm --filter parking-app-front lint",
 	  "preview:front": "pnpm --filter parking-app-front preview"
 	},
