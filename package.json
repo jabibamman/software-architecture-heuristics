@@ -4,22 +4,25 @@
 	"description": "Monorepo for parking reservation system",
 	"private": true,
 	"scripts": {
-	  "dev:back": "pnpm --filter parking-app-back start:dev",
-	  "build:back": "pnpm --filter parking-app-back build",
-	  "start:back": "pnpm --filter parking-app-back start",
-	  "lint:back": "pnpm --filter parking-app-back lint",
-	  "test:back": "pnpm --filter parking-app-back test",
-
-	  "dev:front": "pnpm --filter parking-app-front dev",
-	  "build:front": "pnpm --filter parking-app-front build",
-	  "start:front": "pnpm --filter parking-app-front start",
-	  "lint:front": "pnpm --filter parking-app-front lint",
-	  "preview:front": "pnpm --filter parking-app-front preview"
+		"dev:back": "pnpm --filter parking-app-back start:dev",
+		"build:back": "pnpm install && pnpm --filter parking-app-back build",
+		"start:back": "pnpm --filter parking-app-back start",
+		"lint:back": "pnpm --filter parking-app-back lint",
+		"test:back": "pnpm --filter parking-app-back test",
+		"dev:front": "pnpm --filter parking-app-front dev",
+		"build:front": "pnpm --filter parking-app-front build",
+		"start:front": "pnpm --filter parking-app-front start",
+		"lint:front": "pnpm --filter parking-app-front lint",
+		"preview:front": "pnpm --filter parking-app-front preview"
 	},
 	"devDependencies": {
-	  "eslint": "^9.0.0",
-	  "prettier": "^3.0.0",
-	  "typescript": "^5.3.3"
+		"@nestjs/cli": "^11.0.7",
+		"eslint": "^9.0.0",
+		"prettier": "^3.0.0",
+		"typescript": "^5.3.3"
+	},
+	"engines": {
+		"node": ">=18.0.0",
+		"pnpm": ">=8.0.0"
 	}
-  }
-  
+}
