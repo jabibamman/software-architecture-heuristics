@@ -9,6 +9,8 @@ import { CreateReservationUseCase } from '../../application/use-cases';
 export class ReservationController {
   constructor(
     private readonly createReservationUseCase: CreateReservationUseCase,
+    // private readonly checkInReservationUseCase: CheckInReservationUseCase,
+    // private readonly releaseExpiredReservationUseCase: ReleaseExpiredReservationUseCase,
   ) {}
 
   @Post()
