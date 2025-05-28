@@ -13,10 +13,13 @@
 		"build:front": "pnpm --filter parking-app-front build",
 		"start:front": "pnpm --filter parking-app-front start",
 		"lint:front": "pnpm --filter parking-app-front lint",
-		"preview:front": "pnpm --filter parking-app-front preview"
+		"preview:front": "pnpm --filter parking-app-front preview",
+
+		"dev:back-front": "docker compose up -d postgres && concurrently \"pnpm dev:back\" \"pnpm dev:front\""
 	},
 	"devDependencies": {
 		"@nestjs/cli": "^11.0.7",
+		"concurrently": "^9.1.2",
 		"eslint": "^9.0.0",
 		"prettier": "^3.0.0",
 		"typescript": "^5.3.3"

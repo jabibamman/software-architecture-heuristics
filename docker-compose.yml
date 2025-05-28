@@ -1,41 +1,31 @@
 version: '3.8'
-
 services:
-  parking-app-backend:
-    container_name: parking-app-backend
-    build: ./apps/parking-app-back
-    ports:
-      - ${BACK_PORT}:3000
-    depends_on:
-      - postgres
-    env_file:
-      - .env
-    restart: unless-stopped
-
-  parking-app-frontend:
-    container_name: parking-app-frontend
-    build: ./apps/parking-app-front
-    ports:
-      - ${FRONT_PORT}:80
-    depends_on:
-      - parking-app-backend
-    env_file:
-      - .env
-    restart: unless-stopped
-
   postgres:
     image: postgres:15
     container_name: parking-app-postgres
     environment:
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_DB:   ${DB_NAME}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_HOST: ${DB_HOST}
     ports:
-      - ${DB_PORT}:5432
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - parking-app-data:/var/lib/postgresql/data
-    restart: unless-stopped
+    restart: unless-stopped 
 
 volumes:
   parking-app-data:
+
+  #  parking-app-backend:
+  #  container_name: parking-app-backend
+  #  build:
+  #    context: .
+  #    dockerfile: apps/parking-app-back/Dockerfile
+  #  ports:
+  #    - "${BACK_PORT:-3000}:3000"
+  #  env_file:
+  #    - .env
+  #  depends_on:
+  #    - postgres
+  #  restart: unless-stopped
