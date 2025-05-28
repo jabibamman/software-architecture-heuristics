@@ -18,6 +18,7 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "@/*": ["./*"],
       "@shared/*": ["../shared/*"],
       "@shared-dto/*": ["../shared/dto/*"],
       "@shared-entities/*": ["../shared/entities/*"],
