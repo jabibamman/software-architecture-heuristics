@@ -1,8 +1,3 @@
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
   <header>
     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
@@ -16,13 +11,42 @@ import HelloWorld from './components/HelloWorld.vue'
         <RouterLink to="/login">Login</RouterLink>
         <RouterLink to="/reservations">Reservation</RouterLink>
       </nav>
+
+      <!-- Health-check status -->
+      <p class="health-status">
+        Statut du back-end : <strong>{{ status }}</strong>
+      </p>
     </div>
   </header>
 
   <RouterView />
 </template>
 
+<script setup lang="ts">
+import { RouterLink, RouterView } from 'vue-router';
+import HelloWorld from './components/HelloWorld.vue';
+import { ref, onMounted } from 'vue';
+
+const status = ref<'OK' | 'KO' | 'En attente'>('En attente');
+
+onMounted(async () => {
+  try {
+    const res = await fetch('/api/health');
+    if (res.ok) {
+      const data = await res.json();
+      status.value = data.status === 'UP' ? 'OK' : 'KO';
+    } else {
+      status.value = 'KO';
+    }
+  } catch (e) {
+    status.value = 'KO';
+    console.error('Health check failed', e);
+  }
+});
+</script>
+
 <style scoped>
+/* styles existants */
 header {
   line-height: 1.5;
   max-height: 100vh;
@@ -58,6 +82,11 @@ nav a:first-of-type {
   border: 0;
 }
 
+.health-status {
+  margin-top: 1rem;
+  text-align: center;
+}
+
 @media (min-width: 1024px) {
   header {
     display: flex;
@@ -82,6 +111,12 @@ nav a:first-of-type {
 
     padding: 1rem 0;
     margin-top: 1rem;
+  }
+
+  .health-status {
+    margin-left: 1rem;
+    margin-top: 0;
+    text-align: left;
   }
 }
 </style>
