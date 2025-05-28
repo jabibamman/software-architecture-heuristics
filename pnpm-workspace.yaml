@@ -1,4 +1,6 @@
 packages:
-  - "apps/*"      
-  - "shared/*"    
-  - "!**/dist/**"    
+  - apps/*
+  - shared/*
+  - '!**/dist/**'
+ignoredBuiltDependencies:
+  - esbuild

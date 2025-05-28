@@ -1,120 +1,102 @@
 <template>
-  <header>
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+  <div class="min-h-screen flex flex-col bg-gray-50 font-sans">
+    <header class="bg-white shadow-md">
+      <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="75" height="75" />
+          <h1 class="text-2xl font-extrabold text-primary">ParkEase</h1>
+        </div>
+        <div class="flex items-center space-x-8">
+          <nav class="space-x-4">
+            <RouterLink
+              v-for="link in navLinks"
+              :key="link.path"
+              :to="link.path"
+              class="text-gray-600 hover:text-primary transition"
+              active-class="text-primary font-semibold"
+            >
+              {{ link.label }}
+            </RouterLink>
+          </nav>
+          <div
+            class="flex items-center space-x-2 px-4 py-1 rounded-full"
+            :class="{
+              'bg-green-100 text-green-800': status === 'OK',
+              'bg-red-100 text-red-800': status === 'KO',
+              'bg-yellow-100 text-yellow-800': status === 'PENDING',
+            }"
+          >
+            <span
+              class="w-2 h-2 rounded-full"
+              :class="{
+                'bg-green-500': status === 'OK',
+                'bg-red-500': status === 'KO',
+                'bg-yellow-500': status === 'PENDING',
+              }"
+            ></span>
+            <span class="text-sm font-medium">{{ statusLabel }}</span>
+          </div>
+        </div>
+      </div>
+    </header>
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-        <RouterLink to="/login">Login</RouterLink>
-        <RouterLink to="/reservations">Reservation</RouterLink>
-      </nav>
+    <main class="flex-1 container mx-auto px-6 py-8">
+      <RouterView />
+    </main>
 
-      <!-- Health-check status -->
-      <p class="health-status">
-        Statut du back-end : <strong>{{ status }}</strong>
-      </p>
-    </div>
-  </header>
-
-  <RouterView />
+    <footer class="bg-white border-t text-center py-4 text-gray-500 text-sm">
+      © 2025 ParkEase – Built with ❤️ by Team ParkingApp
+    </footer>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router';
-import HelloWorld from './components/HelloWorld.vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue'
+import { RouterLink, RouterView } from 'vue-router'
+import { getHealth } from '@/services/health.api'
+//import ParkLogo from '@/assets/park-logo.svg?component' // SVG as component
 
-const status = ref<'OK' | 'KO' | 'En attente'>('En attente');
+// Nav links
+const navLinks = [
+  { path: '/', label: 'Home' },
+  { path: '/about', label: 'About' },
+  { path: '/login', label: 'Login' },
+  { path: '/reservations', label: 'Reservations' },
+]
 
+// Health status
+const status = ref<'OK' | 'KO' | 'PENDING'>('PENDING')
+const statusLabel = computed(() => {
+  return status.value === 'PENDING'
+    ? 'Checking…'
+    : status.value === 'OK'
+    ? 'Online'
+    : 'Offline'
+})
+
+// On mount, call health API
 onMounted(async () => {
   try {
-    const res = await fetch('/api/health');
-    if (res.ok) {
-      const data = await res.json();
-      status.value = data.status === 'UP' ? 'OK' : 'KO';
-    } else {
-      status.value = 'KO';
-    }
-  } catch (e) {
-    status.value = 'KO';
-    console.error('Health check failed', e);
+    const res = await getHealth()
+    status.value = res.status === 200 && res.data === 'UP' ? 'OK' : 'KO'
+  } catch {
+    status.value = 'KO'
   }
-});
+})
 </script>
 
-<style scoped>
-/* styles existants */
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+<style lang="css" scoped>
+/* Variables from tailwind.config.js */
+:root {
+  --color-primary: theme('colors.primary');
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+/* Ensure perfect bounce timing */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0) }
+  50% { transform: translateY(-4px) }
 }
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-.health-status {
-  margin-top: 1rem;
-  text-align: center;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-
-  .health-status {
-    margin-left: 1rem;
-    margin-top: 0;
-    text-align: left;
-  }
+.animate-bounce {
+  animation: bounce 1.5s infinite;
 }
 </style>
