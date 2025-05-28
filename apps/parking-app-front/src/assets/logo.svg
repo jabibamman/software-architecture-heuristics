@@ -1,1 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 261.76 226.69"><path d="M161.096.001l-30.225 52.351L100.647.001H-.005l130.877 226.688L261.749.001z" fill="#41b883"/><path d="M161.096.001l-30.225 52.351L100.647.001H52.346l78.526 136.01L209.398.001z" fill="#34495e"/></svg>
+<svg
+  width="120"
+  height="120"
+  viewBox="0 0 120 120"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <!-- Outer P shape -->
+  <path
+    d="M30 15 H60 C80 15 90 30 90 45 C90 60 80 75 60 75 H30 V105 H15 V15 Z"
+    fill="#1E40AF"
+  />
+  <!-- Inner P counter -->
+  <path
+    d="M30 45 H60 C70 45 75 55 75 60 C75 65 70 75 60 75 H30 V45 Z"
+    fill="white"
+  />
+  <!-- Car silhouette -->
+  <path
+    d="M25 85 H80 L85 95 H20 L25 85 Z"
+    fill="#10B981"
+  />
+  <circle cx="30" cy="95" r="5" fill="#1E40AF" />
+  <circle cx="70" cy="95" r="5" fill="#1E40AF" />
+  <!-- Electric plug -->
+  <rect x="90" y="65" width="8" height="20" rx="2" fill="#F59E0B" />
+  <rect x="96" y="65" width="2" height="10" fill="white" />
+  <rect x="100" y="65" width="2" height="10" fill="white" />
+  <path
+    d="M90 85 C85 90, 75 90, 70 85"
+    stroke="#F59E0B"
+    stroke-width="4"
+    fill="none"
+    stroke-linecap="round"
+  />
+</svg>
