@@ -4,18 +4,22 @@ import {
   CheckInReservationUseCase,
   CreateReservationUseCase,
   ReleaseExpiredReservationUseCase,
+  useCases,
 } from './application/use-cases';
+import { Reservation } from './domain/entities/reservation';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmReservationRepository } from './infrastructure/repositories/typeorm-reservation.repository';
+//import { ParkingSlot } from './domain/entities/parking-slot';
 
 @Module({
-  imports: [
-    // TypeOrmModule.forFeature([Reservation]),
-    // TypeOrmModule.forFeature([ParkingSlot]),
-  ],
+  imports: [TypeOrmModule.forFeature([Reservation /*ParkingSlot*/])],
   controllers: [ReservationController],
   providers: [
-    CheckInReservationUseCase,
-    CreateReservationUseCase,
-    ReleaseExpiredReservationUseCase,
+    ...useCases,
+    {
+      provide: 'ReservationRepositoryPort',
+      useClass: TypeOrmReservationRepository,
+    },
   ],
   exports: [],
 })
