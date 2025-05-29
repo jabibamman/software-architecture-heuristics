@@ -61,6 +61,7 @@ const navLinks = [
   { path: '/', label: 'Home' },
   { path: '/about', label: 'About' },
   { path: '/login', label: 'Login' },
+  { path: '/stats', label: 'Stats' },
   { path: '/reservations', label: 'Reservations' },
 ]
 
