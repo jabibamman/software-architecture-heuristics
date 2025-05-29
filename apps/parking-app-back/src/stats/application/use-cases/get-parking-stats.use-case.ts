@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { UseCaseInterface } from '../../../common/interface/use-case.interface';
+import { ParkingStatsDto } from '../dtos/parking-stats.dto';
 
 @Injectable()
-export class GetParkingStatsUseCase implements UseCaseInterface {
-  constructor() {}
-
-  execute(): Promise<void> {
-    throw new Error('Method not implemented.');
+export class GetParkingStatsUseCase {
+  async execute(): Promise<ParkingStatsDto> {
+    return {
+      totalSlots: 60,
+      reservedToday: 20,
+      checkedInToday: 15,
+      chargerUsagePct: 30,
+    };
   }
 }
