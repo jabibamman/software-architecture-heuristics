@@ -1,8 +1,8 @@
-import { NotFoundException } from '@nestjs/common';
 import { GetReservationUseCase } from '../get-reservation.use-case';
 import { ReservationRepositoryPort } from '../../ports/reservation.repository.port';
-import { ReservationResponseDto } from '../../dtos/reservation-response.dto';
+import { ReservationResponseDto } from '../../dtos';
 import { Reservation } from '../../../domain/entities/reservation.entity';
+import { ReservationNotFoundException } from '../../../domain/exceptions/reservation-not-found.exception';
 
 describe('GetReservationUseCase', () => {
   let useCase: GetReservationUseCase;
@@ -36,10 +36,10 @@ describe('GetReservationUseCase', () => {
     expect(dto).toEqual(ReservationResponseDto.fromEntity(entity));
   });
 
-  it('throw NotFoundException quand la réservation est introuvable', async () => {
+  it('throw ReservationNotFoundException quand la réservation est introuvable', async () => {
     repo.findById.mockResolvedValue(null);
     await expect(useCase.execute('nope')).rejects.toThrowError(
-      NotFoundException,
+      ReservationNotFoundException,
     );
   });
 });

@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Reservation } from '../../domain/entities/reservation.entity';
 import { ReservationRepositoryPort } from '../../application/ports/reservation.repository.port';
+import { ReservationNotFoundException } from '@/reservations/domain/exceptions';
 
 @Injectable()
 export class TypeOrmReservationRepository implements ReservationRepositoryPort {
@@ -17,7 +18,7 @@ export class TypeOrmReservationRepository implements ReservationRepositoryPort {
 
   async findById(id: string): Promise<Reservation | null> {
     const r = await this.repo.findOne({ where: { id } });
-    if (!r) throw new NotFoundException(`Reservation ${id} not found`);
+    if (!r) throw new ReservationNotFoundException(id);
 
     return r;
   }

@@ -2,13 +2,12 @@ import { User } from '@/users/domain/entities/user.entity';
 import { CreateReservationUseCase } from '../create-reservation.use-case';
 import { ReservationRepositoryPort } from '../../ports/reservation.repository.port';
 import { EventPublisher } from '@/common/messaging/ports/event-publisher.port';
-import { ReservationCreationDto } from '../../dtos/reservation-creation.dto';
+import { ReservationCreationDto, ReservationResponseDto } from '../../dtos';
 import { ReservationPolicy } from '../../../domain/services/reservation-policy';
 import { Reservation } from '../../../domain/entities/reservation.entity';
-import { ReservationResponseDto } from '../../dtos/reservation-response.dto';
 import { ReservationCreatedEvent } from '../../../domain/events/reservation-created.event';
-import { SlotId } from '../../../domain/value-objects/slot-id';
-import { BadRequestException } from '@nestjs/common';
+import { SlotId } from '../../../domain/value-objects';
+import { ReservationBadRequestException } from '../../../domain/exceptions';
 
 describe('CreateReservationUseCase', () => {
   let useCase: CreateReservationUseCase;
@@ -97,7 +96,7 @@ describe('CreateReservationUseCase', () => {
     });
 
     await expect(useCase.execute(dto, dummyUser)).rejects.toThrow(
-      new BadRequestException('invalid slot'),
+      new ReservationBadRequestException('invalid slot'),
     );
     expect(repo.save).not.toHaveBeenCalled();
     expect(publisher.publish).not.toHaveBeenCalled();
@@ -120,7 +119,7 @@ describe('CreateReservationUseCase', () => {
       });
 
     await expect(useCase.execute(dto, dummyUser)).rejects.toThrow(
-      new BadRequestException('too many days'),
+      new ReservationBadRequestException('too many days'),
     );
     expect(repo.save).not.toHaveBeenCalled();
     expect(publisher.publish).not.toHaveBeenCalled();

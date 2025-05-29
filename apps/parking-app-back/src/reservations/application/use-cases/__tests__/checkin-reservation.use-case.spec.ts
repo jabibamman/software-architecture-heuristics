@@ -1,12 +1,14 @@
-import { BadRequestException } from '@nestjs/common';
 import { CheckInReservationUseCase } from '../checkin-reservation.use-case';
 import { ReservationRepositoryPort } from '../../ports/reservation.repository.port';
 import { EventPublisher } from '@/common/messaging/ports/event-publisher.port';
 import { Reservation } from '../../../domain/entities/reservation.entity';
-import { CheckInReservationDto } from '../../dtos/checkin-reservation.dto';
+import { CheckInReservationDto, ReservationResponseDto } from '../../dtos';
 import { ReservationCheckedInEvent } from '../../../domain/events/reservation-checked-in.event';
-import { ReservationResponseDto } from '../../dtos/reservation-response.dto';
 import { User } from '@/users/domain/entities/user.entity';
+import {
+  ReservationBadRequestException,
+  ReservationUnauthorizedException,
+} from '@/reservations/domain/exceptions';
 describe('CheckInReservationUseCase', () => {
   let useCase: CheckInReservationUseCase;
   let repo: jest.Mocked<ReservationRepositoryPort>;
@@ -88,7 +90,7 @@ describe('CheckInReservationUseCase', () => {
     dto.id = 'id-2';
 
     await expect(useCase.execute(dto, dummyUser)).rejects.toThrow(
-      BadRequestException,
+      ReservationUnauthorizedException,
     );
     expect(repo.save).not.toHaveBeenCalled();
     expect(publisher.publish).not.toHaveBeenCalled();
@@ -116,7 +118,7 @@ describe('CheckInReservationUseCase', () => {
     dto.id = 'id-3';
 
     await expect(useCase.execute(dto, dummyUser)).rejects.toThrow(
-      BadRequestException,
+      ReservationBadRequestException,
     );
     expect(repo.save).not.toHaveBeenCalled();
     expect(publisher.publish).not.toHaveBeenCalled();
