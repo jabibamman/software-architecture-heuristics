@@ -8,3 +8,11 @@ export function createReservation(data: ReservationCreation): Promise<Reservatio
 export function getReservations(): Promise<ReservationResponse[]> {
   return api.get('/reservation').then((r) => r.data)
 }
+
+export function getReservation(id: string): Promise<ReservationResponse> {
+  return api.get(`/reservation/${id}`).then((r) => r.data)
+}
+
+export function checkInReservation(id: string): Promise<ReservationResponse> {
+  return api.post(`/reservation/${id}/checkin`, { id }).then((r) => r.data)
+}

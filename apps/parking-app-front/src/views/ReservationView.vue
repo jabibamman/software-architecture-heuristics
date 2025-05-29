@@ -6,11 +6,7 @@
         @click="showModal = true"
         class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-             viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 4v16m8-8H4" />
-        </svg>
+        <PlusIcon class="h-5 w-5"/>
         New Reservation
       </button>
     </div>
@@ -21,33 +17,38 @@
       @created="onCreated"
     />
 
-    <ReservationList :reservations="reservations" />
+    <div v-if="store.loading" class="text-center py-8">Chargement…</div>
+    <div v-else-if="store.error" class="text-red-600 py-8">{{ store.error }}</div>
+    <ReservationList 
+      :reservations="store.list" 
+      @check-in="onCheckIn" 
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import ReservationModal from '@/components/ReservationModal.vue';
-import ReservationList from '@/components/ReservationList.vue';
-import type { ReservationResponse } from '@/types/reservations';
-import { getReservations } from '@/services/reservation.api';
+import { ref, onMounted } from 'vue'
+import { useReservationsStore } from '@/stores/useReservationsStore'
+import ReservationModal from '@/components/ReservationModal.vue'
+import ReservationList from '@/components/ReservationList.vue'
+import { PlusIcon } from 'lucide-vue-next'
 
-const showModal     = ref(false);
-const reservations = ref<ReservationResponse[]>([]);
+const showModal = ref(false)
+const store = useReservationsStore()
 
-async function loadReservations() {
+onMounted(() => {
+  store.fetchAll()
+})
+
+function onCreated(newRes: any) {
+  showModal.value = false
+}
+
+async function onCheckIn(id: string) {
   try {
-    reservations.value = await getReservations();
-  } catch (err) {
-    console.error('Error loading reservations', err);
+    await store.checkIn(id)
+  } catch (e) {
+    console.error(e)
   }
 }
-
-async function onCreated(newRes: ReservationResponse) {
-  reservations.value.unshift(newRes);
-
-  await loadReservations();
-}
-
-onMounted(loadReservations);
-</script> 
+</script>
