@@ -1,18 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsString } from 'class-validator';
-import { IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsDateString,
+  IsBoolean,
+  IsOptional,
+  IsUUID,
+} from 'class-validator';
+import { Reservation } from '../../domain/entities/reservation.entity';
 
 export class ReservationResponseDto {
-  @ApiProperty({
-    description: 'The reservation ID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
+  @ApiProperty({ description: 'The reservation ID', example: 'uuid-v4' })
   @IsString()
   id!: string;
-  @ApiProperty({
-    description: 'The slot ID',
-    example: 'A01',
-  })
+
+  @ApiProperty({ description: 'The slot ID', example: 'A01' })
   @IsString()
   slotId!: string;
 
@@ -23,10 +24,7 @@ export class ReservationResponseDto {
   @IsDateString()
   startDate!: string;
 
-  @ApiProperty({
-    description: 'The end date',
-    example: '2025-05-28T12:00:00Z',
-  })
+  @ApiProperty({ description: 'The end date', example: '2025-05-28T12:00:00Z' })
   @IsDateString()
   endDate!: string;
 
@@ -37,10 +35,45 @@ export class ReservationResponseDto {
   @IsBoolean()
   needsCharger!: boolean;
 
+  @ApiProperty({ description: 'Additional notes', required: false })
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @ApiProperty({ description: 'Check-in status', example: false })
+  @IsBoolean()
+  checkedIn!: boolean;
+
+  @ApiProperty({ description: 'Check-in timestamp (ISO)', required: false })
+  @IsOptional()
+  @IsDateString()
+  checkedInAt?: string;
+
   @ApiProperty({
-    description: 'The creation date',
+    description: 'Creation timestamp (ISO)',
     example: '2025-05-28T10:00:00Z',
   })
   @IsDateString()
   createdAt!: string;
+
+  @ApiProperty({
+    description: 'Last update timestamp (ISO)',
+    example: '2025-05-28T11:00:00Z',
+  })
+  @IsDateString()
+  updatedAt!: string;
+
+  static fromEntity(entity: Reservation): ReservationResponseDto {
+    return {
+      id: entity.id,
+      slotId: entity.slotId,
+      startDate: entity.startDate.toISOString(),
+      endDate: entity.endDate.toISOString(),
+      needsCharger: entity.needsCharger,
+      checkedIn: entity.checkedIn,
+      checkedInAt: entity.checkedInAt?.toISOString(),
+      createdAt: entity.createdAt.toISOString(),
+      updatedAt: entity.updatedAt.toISOString(),
+    };
+  }
 }
