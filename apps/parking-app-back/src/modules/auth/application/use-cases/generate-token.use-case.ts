@@ -10,7 +10,8 @@ export class GenerateTokenUseCase
   constructor(private readonly jwtService: JwtService) {}
 
   async execute(user: JwtPayload): Promise<TokenResponseDto> {
-    const token = this.jwtService.sign(user, { expiresIn: '5m' });
+    const payload = { userId: user.userId, email: user.email };
+    const token = this.jwtService.sign(payload, { expiresIn: '5m' });
     return Promise.resolve(TokenResponseDto.from(token));
   }
 }

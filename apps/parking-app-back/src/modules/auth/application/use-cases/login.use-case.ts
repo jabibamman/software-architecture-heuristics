@@ -21,9 +21,9 @@ export class LoginUseCase
   async execute(dto: LoginDto): Promise<TokenResponseDto> {
     const { email, password } = dto;
 
-    const user = await this.findByEmail.execute(email);
-    if (!user) {
-      throw new UserNotFoundException();
+    const user = await this.findByEmail.execute(email, {
+      throwIfNotFound: true,
+    });
     }
 
     const isValidPassword = await this.validatePassword(
