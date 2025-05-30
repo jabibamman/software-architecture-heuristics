@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { setupSwagger } from './common/config/swagger.config';
-import { configModule } from './common/config/config.module';
+import { CreateInitialUserUseCase } from './users/application/use-cases';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -32,5 +32,9 @@ async function bootstrap() {
   logger.log(
     `📚 Documentation Swagger available on http://localhost:${port}/docs`,
   );
+
+  const createInitialUserUseCase = app.get(CreateInitialUserUseCase);
+  let user = await createInitialUserUseCase.execute();
+  logger.log(`🌱 Initial user created: ${user.email}`);
 }
 bootstrap();

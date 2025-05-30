@@ -2,7 +2,12 @@
   <div class="flex items-center justify-center min-h-screen bg-gradient-to-br">
     <div class="w-full  p-8 bg-white rounded-xl shadow-lg">
       <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">Log In</h2>
-
+      <p class="text-sm text-center mb-4">
+        Pas de compte ?
+        <router-link to="/register" class="text-indigo-600 hover:underline">
+          Inscrivez-vous
+        </router-link>
+      </p>
       <form @submit.prevent="onSubmit">
         <label class="block mb-4">
           <span class="text-gray-700">Email</span>
@@ -54,19 +59,18 @@ const auth = useAuthStore()
 
 const email = ref('')
 const password = ref('')
-const show = ref(false)
 const error = ref('')
 
 async function onSubmit() {
-  error.value = ''
   try {
-    await auth.login({ mail: email.value, password: password.value })
-    router.push({ name: 'Reservations' })
+    await auth.login({ email: email.value, password: password.value })
+    router.push({ name: 'reservations' })
   } catch (e) {
     error.value = e.response?.data?.message || 'Login failed'
   }
 }
 </script>
+
 
 <style>
 </style>

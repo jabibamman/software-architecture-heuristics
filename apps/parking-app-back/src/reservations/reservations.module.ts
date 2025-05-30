@@ -7,9 +7,14 @@ import { TypeOrmReservationRepository } from './infrastructure/repositories/type
 
 import { MessagingModule } from '../common/messaging/messaging.module';
 import { ReleaseExpiredJob } from './interface/cron/release-expired.job';
+import { UsersModule } from '@/users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Reservation]), MessagingModule],
+  imports: [
+    TypeOrmModule.forFeature([Reservation]),
+    MessagingModule,
+    UsersModule,
+  ],
   controllers: [ReservationController],
   providers: [
     ...useCases,

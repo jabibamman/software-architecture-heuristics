@@ -9,6 +9,8 @@ import {
   ReservationBadRequestException,
   ReservationUnauthorizedException,
 } from '../../domain/exceptions';
+import { JwtPayload } from '@/auth/application/dtos/jwt-payload';
+import { GetUserByEmailUseCase } from '@/users/application/use-cases/get-user-by-email.use-case';
 
 @Injectable()
 export class CheckInReservationUseCase {
@@ -17,15 +19,20 @@ export class CheckInReservationUseCase {
     private readonly repo: ReservationRepositoryPort,
     @Inject('EventPublisher')
     private readonly publisher: EventPublisher,
+    private readonly findUserByEmailUseCase: GetUserByEmailUseCase,
   ) {}
 
   async execute(
     dto: CheckInReservationDto,
-    currentUser: User,
+    payload: JwtPayload,
   ): Promise<ReservationResponseDto> {
     const reservation = await this.repo.findById(dto.id);
 
-    if (reservation?.userId !== currentUser.id) {
+    const user = await this.findUserByEmailUseCase.execute(payload.email, {
+      throwIfNotFound: true,
+    });
+
+    if (reservation?.userId !== user!.id) {
       throw new ReservationUnauthorizedException();
     }
 

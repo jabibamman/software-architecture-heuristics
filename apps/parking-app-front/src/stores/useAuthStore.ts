@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import type {User} from "@/types/user.ts";
-import authService from "@/services/auth.service.ts";
+import type { User } from '@/types/user.ts'
+import authService from '@/services/auth.service.ts'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -16,9 +16,9 @@ export const useAuthStore = defineStore('auth', {
     async login(credentials: { email: string; password: string }) {
       try {
         const { data } = await authService.login(credentials)
-        this.token = data.token
+        this.token = data.accessToken
         this.user = data.user
-        localStorage.setItem('auth_token', this.token)
+        localStorage.setItem('token', this.token)
       } catch (error) {
         console.error('Erreur lors de la connexion :', error)
         throw error
@@ -26,15 +26,14 @@ export const useAuthStore = defineStore('auth', {
     },
 
     initialize() {
-      const savedToken = localStorage.getItem('auth_token')
+      const savedToken = localStorage.getItem('token')
       if (savedToken) this.token = savedToken
     },
-
 
     logout() {
       this.token = ''
       this.user = null
-      localStorage.removeItem('auth_token')
+      localStorage.removeItem('token')
     },
   },
 })
