@@ -1,12 +1,47 @@
 import { Injectable } from '@nestjs/common';
-import { UseCaseInterface } from '../../../common/interface/use-case.interface';
-import { LoginDto, TokenResponseDto } from '../dtos';
+import * as bcrypt from 'bcrypt';
+import { UseCaseInterface } from '@/common/interface/use-case.interface';
+import { LoginDto, TokenResponseDto, JwtPayload } from '../dtos';
+import { GetUserByEmailUseCase } from '@/users/application/use-cases';
+import {
+  UserNotFoundException,
+  UserNotValidPasswordException,
+} from '@/users/domain/exceptions';
+import { GenerateTokenUseCase } from './generate-token.use-case';
 
 @Injectable()
-export class LoginUseCase implements UseCaseInterface {
-  constructor() {}
+export class LoginUseCase
+  implements UseCaseInterface<LoginDto, TokenResponseDto>
+{
+  constructor(
+    private readonly findByEmail: GetUserByEmailUseCase,
+    private readonly generateTokenUseCase: GenerateTokenUseCase,
+  ) {}
 
-  execute(dto: LoginDto): Promise<TokenResponseDto> {
-    throw new Error('Method not implemented.');
+  async execute(dto: LoginDto): Promise<TokenResponseDto> {
+    const { email, password } = dto;
+
+    const user = await this.findByEmail.execute(email);
+    if (!user) {
+      throw new UserNotFoundException();
+    }
+
+    const isValidPassword = await this.validatePassword(
+      user.password,
+      password,
+    );
+    if (!isValidPassword) {
+      throw new UserNotValidPasswordException();
+    }
+
+    const payload = JwtPayload.from(user);
+    return await this.generateTokenUseCase.execute(payload);
+  }
+
+  validatePassword(
+    userPassword: string,
+    plainPassword: string,
+  ): Promise<boolean> {
+    return bcrypt.compare(plainPassword, userPassword);
   }
 }

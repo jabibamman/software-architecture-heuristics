@@ -1,9 +1,8 @@
 import { ReleaseExpiredReservationsUseCase } from '../release-expired.use-case';
 import { ReservationRepositoryPort } from '../../ports/reservation.repository.port';
 import { EventPublisher } from '@/common/messaging/ports/event-publisher.port';
-import { ReservationReleasedEvent } from '../../../domain/events/reservation-released.event';
+import { ReservationReleasedEvent } from '../../../domain/events';
 import { Reservation } from '../../../domain/entities/reservation.entity';
-import { ReservationPolicy } from '../../../domain/services/reservation-policy';
 
 describe('ReleaseExpiredReservationsUseCase', () => {
   let useCase: ReleaseExpiredReservationsUseCase;

@@ -1,6 +1,7 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { ReservationResponseDto } from '../dtos/reservation-response.dto';
+import { Inject, Injectable } from '@nestjs/common';
+import { ReservationResponseDto } from '../dtos';
 import { ReservationRepositoryPort } from '../ports/reservation.repository.port';
+import { ReservationNotFoundException } from '../../domain/exceptions';
 
 @Injectable()
 export class GetReservationUseCase {
@@ -12,7 +13,7 @@ export class GetReservationUseCase {
   async execute(id: string): Promise<ReservationResponseDto> {
     const reservation = await this.repo.findById(id);
     if (!reservation) {
-      throw new NotFoundException(`Reservation ${id} not found`);
+      throw new ReservationNotFoundException(id);
     }
     return ReservationResponseDto.fromEntity(reservation);
   }

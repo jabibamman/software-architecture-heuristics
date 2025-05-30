@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ReservationRepositoryPort } from '../ports/reservation.repository.port';
 import { EventPublisher } from '@/common/messaging/ports/event-publisher.port';
-import { ReservationReleasedEvent } from '../../domain/events/reservation-released.event';
+import { ReservationReleasedEvent } from '../../domain/events';
 import { ReservationPolicy } from '../../domain/services/reservation-policy';
 
 @Injectable()
