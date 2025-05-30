@@ -1,7 +1,6 @@
 import { ReservationRepositoryPort } from '../../ports/reservation.repository.port';
 import { EventPublisher } from '@/common/messaging/ports/event-publisher.port';
 import { GetUserByEmailUseCase } from '@/modules/users/application/use-cases/get-user-by-email.use-case';
-
 import { JwtPayload } from '@/modules/auth/application/dtos/jwt-payload';
 import { User } from '@/modules/users/domain/entities/user.entity';
 import { CheckInReservationUseCase } from '../checkin-reservation.use-case';
@@ -23,9 +22,12 @@ describe('CheckInReservationUseCase (with JWT)', () => {
 
   beforeEach(() => {
     repo = {
-      findById: jest.fn(),
-      save: jest.fn(),
       findAll: jest.fn(),
+      findById: jest.fn(),
+      findByUserId: jest.fn(),
+      findReservationsForDate: jest.fn(),
+      save: jest.fn(),
+      deleteById: jest.fn(),
     } as any;
 
     publisher = { publish: jest.fn() } as any;
@@ -46,7 +48,7 @@ describe('CheckInReservationUseCase (with JWT)', () => {
     jest.restoreAllMocks();
   });
 
-  it('✓ checks in successfully when reservation belongs to the JWT user and policy allows', async () => {
+  it('should checks in successfully when reservation belongs to the JWT user and policy allows', async () => {
     // freeze time at 10:00
     const now = new Date();
     now.setHours(10, 0, 0, 0);
@@ -89,7 +91,7 @@ describe('CheckInReservationUseCase (with JWT)', () => {
     expect(result).toEqual(ReservationResponseDto.fromEntity(saved));
   });
 
-  it('✗ throws if the reservation belongs to someone else', async () => {
+  it('should throws if the reservation belongs to someone else', async () => {
     const other = Reservation.create(
       'other-user',
       'A01',
@@ -113,7 +115,7 @@ describe('CheckInReservationUseCase (with JWT)', () => {
     expect(publisher.publish).not.toHaveBeenCalled();
   });
 
-  it('✗ throws if check-in is not allowed by the policy (too early/late)', async () => {
+  it('should throws if check-in is not allowed by the policy (too early/late)', async () => {
     // freeze time at 10:00
     const now = new Date();
     now.setHours(10, 0, 0, 0);

@@ -5,7 +5,8 @@ import {
   LoginUseCase,
   RegisterUseCase,
 } from '@/modules/auth/application/use-cases';
-import { LoginDto } from '@/modules/auth/application/dtos';
+import { JwtPayload, LoginDto } from '@/modules/auth/application/dtos';
+import { Role } from '@/modules/users/domain/value-objects/role.value-object';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -40,7 +41,11 @@ describe('AuthController', () => {
   });
 
   it('should call generate token use case with user payload', async () => {
-    const userPayload = { userId: '123', email: 'john@example.com' };
+    const userPayload = {
+      userId: '123',
+      email: 'john@example.com',
+      role: Role.EMPLOYEE,
+    } as JwtPayload;
     await controller.refreshToken(userPayload);
     expect(generateTokenUseCase.execute).toHaveBeenCalledWith(userPayload);
   });

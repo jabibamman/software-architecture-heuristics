@@ -64,7 +64,7 @@ const error = ref('')
 async function onSubmit() {
   try {
     await auth.login({ email: email.value, password: password.value })
-    router.push({ name: 'reservations' })
+    router.push({ name: 'home' })
   } catch (e) {
     error.value = e.response?.data?.message || 'Login failed'
   }

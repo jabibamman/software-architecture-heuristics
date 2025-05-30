@@ -5,6 +5,7 @@ import {
   getReservations,
   getReservation,
   checkInReservation,
+  getAllReservations,
 } from '@/services/reservation.api'
 import { fetchParkingSlots } from '@/services/parking.api'
 
@@ -18,11 +19,23 @@ export const useReservationsStore = defineStore('reservations', {
   }),
 
   actions: {
-    async fetchAll() {
+    async fetchUserReservations() {
       this.loading = true
       this.error = null
       try {
         this.list = await getReservations()
+      } catch (e: any) {
+        this.error = e.response?.data?.message || 'Erreur lors du chargement des réservations'
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async fetchAllReservations() {
+      this.loading = true
+      this.error = null
+      try {
+        this.list = await getAllReservations()
       } catch (e: any) {
         this.error = e.response?.data?.message || 'Erreur lors du chargement des réservations'
       } finally {

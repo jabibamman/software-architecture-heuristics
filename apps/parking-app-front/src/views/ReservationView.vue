@@ -18,10 +18,11 @@
     />
 
     <div v-if="store.loading" class="text-center py-8">Loading…</div>
-    <div v-else-if="store.error" class="text-red-600 py-8">{{ store.error }}</div>
+    <div v-else-if="store.error" class="text-red-600 py-8">
+    {{ store.error }}
+    </div>
 
     <ReservationList
-      v-else
       :reservations="store.list"
       @check-in="onCheckIn"
     />
@@ -29,22 +30,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useReservationsStore } from '@/stores/useReservationsStore'
 import ReservationModal from '@/components/ReservationModal.vue'
 import ReservationList from '@/components/ReservationList.vue'
 import { PlusIcon } from 'lucide-vue-next'
+import { useRoute } from 'vue-router'
 
 const showModal = ref(false)
+const route = useRoute() 
 const store = useReservationsStore()
 
-onMounted(() => {
-  store.fetchAll()
-})
+watch(
+   () => route.name,
+   (name) => {
+      store.list = []
+     if (name === 'allReservations') {
+       store.fetchAllReservations()
+     } else {
+       store.fetchUserReservations()
+     }
+   },
+   { immediate: true }
+)
 
 function onCreated() {
   showModal.value = false
-  store.fetchAll()
+  if (route.name === 'allReservations') {
+    store.fetchAllReservations()
+  } else {
+    store.fetchUserReservations()
+  }
 }
 
 async function onCheckIn(id: string) {
