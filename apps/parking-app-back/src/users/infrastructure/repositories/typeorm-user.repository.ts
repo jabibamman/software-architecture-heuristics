@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../domain/entities/user.entity';
-import { UserNotFoundException } from '../../domain/exceptions/user-not-found.exception';
+import { UserNotFoundException } from '../../domain/exceptions';
+import { UserRepositoryPort } from '@/users/application/ports/user.repository.port';
 
 @Injectable()
 export class TypeOrmUserRepository implements UserRepositoryPort {

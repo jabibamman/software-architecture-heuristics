@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { EventPublisher } from '../ports/event-publisher.port';
-import { ReservationCreatedEvent } from '../../../reservations/domain/events/reservation-created.event';
-import { ReservationReleasedEvent } from '@/reservations/domain/events/reservation-released.event';
-import { ReservationCheckedInEvent } from '@/reservations/domain/events/reservation-checked-in.event';
+import {
+  ReservationCheckedInEvent,
+  ReservationCreatedEvent,
+  ReservationReleasedEvent,
+} from '@/reservations/domain/events';
 
 @Injectable()
 export class AmqpNotificationAdapter implements EventPublisher {

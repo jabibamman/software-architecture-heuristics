@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ReservationCreatedEvent } from '../../domain/events/reservation-created.event';
+import { ReservationCreatedEvent } from '../../domain/events';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { EventPublisher } from '@/common/messaging/ports/event-publisher.port';
 

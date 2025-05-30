@@ -3,7 +3,7 @@ import { ReservationRepositoryPort } from '../../ports/reservation.repository.po
 import { EventPublisher } from '@/common/messaging/ports/event-publisher.port';
 import { Reservation } from '../../../domain/entities/reservation.entity';
 import { CheckInReservationDto, ReservationResponseDto } from '../../dtos';
-import { ReservationCheckedInEvent } from '../../../domain/events/reservation-checked-in.event';
+import { ReservationCheckedInEvent } from '../../../domain/events';
 import { User } from '@/users/domain/entities/user.entity';
 import {
   ReservationBadRequestException,

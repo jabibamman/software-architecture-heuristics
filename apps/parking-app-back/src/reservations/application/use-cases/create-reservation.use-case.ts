@@ -4,7 +4,7 @@ import { ReservationRepositoryPort } from '../ports/reservation.repository.port'
 import { ReservationCreationDto, ReservationResponseDto } from '../dtos';
 import { ReservationPolicy } from '../../domain/services/reservation-policy';
 import { Reservation } from '../../domain/entities/reservation.entity';
-import { ReservationCreatedEvent } from '../../domain/events/reservation-created.event';
+import { ReservationCreatedEvent } from '../../domain/events';
 import { User } from '@/users/domain/entities/user.entity';
 import { EventPublisher } from '@/common/messaging/ports/event-publisher.port';
 import { SlotId } from '../../domain/value-objects/slot-id';

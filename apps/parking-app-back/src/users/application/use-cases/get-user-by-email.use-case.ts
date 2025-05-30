@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { User } from '../../domain/entities/user.entity';
-import { UserNotFoundException } from '../../domain/exceptions/user-not-found.exception';
+import { UserNotFoundException } from '../../domain/exceptions';
 import { UseCaseInterface } from '@/common/interface/use-case.interface';
 import { UserRepositoryPort } from '../../application/ports/user.repository.port';
 
