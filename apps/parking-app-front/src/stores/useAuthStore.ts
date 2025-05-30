@@ -25,6 +25,18 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    async register(payload: { name: string; email: string; password: string }) {
+      try {
+        const { data } = await authService.register(payload)
+        this.token = data.accessToken
+        this.user = data.user
+        localStorage.setItem('token', this.token)
+      } catch (error) {
+        console.error("Erreur lors de l'inscription :", error)
+        throw error
+      }
+    },
+
     initialize() {
       const savedToken = localStorage.getItem('token')
       if (savedToken) this.token = savedToken

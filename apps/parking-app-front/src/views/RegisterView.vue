@@ -1,46 +1,75 @@
 <template>
-  <div class="flex h-screen">
-    <div class="w-1/2 bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
-    </div>
-    <div class="w-1/2 flex items-center justify-center bg-white">
-      <div class="w-full max-w-md p-8">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Register</h2>
-        <form @submit.prevent="onSubmit">
-          <label class="block mb-4">
-            <span class="text-gray-700">Name</span>
-            <input v-model="name" type="text" required class="mt-1 block w-full px-3 py-2 border rounded-lg focus:ring-2" />
-          </label>
-          <label class="block mb-4">
-            <span class="text-gray-700">Email</span>
-            <input v-model="email" type="email" required class="mt-1 block w-full px-3 py-2 border rounded-lg focus:ring-2" />
-          </label>
-          <label class="block mb-4">
-            <span class="text-gray-700">Password</span>
-            <input v-model="password" :type="showPassword ? 'text' : 'password'" required class="mt-1 block w-full px-3 py-2 border rounded-lg focus:ring-2" />
-          </label>
-          <label class="block mb-6">
-            <span class="text-gray-700">Confirm Password</span>
-            <input v-model="confirmPassword" :type="showPassword ? 'text' : 'password'" required class="mt-1 block w-full px-3 py-2 border rounded-lg focus:ring-2" />
-            <button type="button" @click="showPassword = !showPassword" class="mt-1 text-sm text-teal-600">
+  <div class="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-50 to-white">
+    <div class="w-full max-w-md p-8 bg-white rounded-xl shadow-lg">
+      <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">Register</h2>
+      <p class="text-sm text-center mb-4">
+        Déjà un compte ?
+        <router-link to="/login" class="text-indigo-600 hover:underline">
+          Connectez-vous
+        </router-link>
+      </p>
+      <form @submit.prevent="onSubmit" class="space-y-4">
+        <label class="block">
+          <span class="text-gray-700">Name</span>
+          <input
+            v-model="name"
+            type="text"
+            required
+            class="mt-1 block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-400"
+          />
+        </label>
+        <label class="block">
+          <span class="text-gray-700">Email</span>
+          <input
+            v-model="email"
+            type="email"
+            required
+            class="mt-1 block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-400"
+          />
+        </label>
+        <label class="block">
+          <span class="text-gray-700">Password</span>
+          <div class="relative">
+            <input
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              required
+              class="mt-1 block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-400"
+            />
+            <button
+              type="button"
+              @click="showPassword = !showPassword"
+              class="absolute inset-y-0 right-2 px-2 text-sm text-green-600"
+            >
               {{ showPassword ? 'Hide' : 'Show' }}
             </button>
-          </label>
-          <button type="submit" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Sign Up</button>
-        </form>
-        <p v-if="error" class="mt-4 text-red-600">{{ error }}</p>
-      </div>
+          </div>
+        </label>
+        <label class="block">
+          <span class="text-gray-700">Confirm Password</span>
+          <input
+            v-model="confirmPassword"
+            :type="showPassword ? 'text' : 'password'"
+            required
+            class="mt-1 block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-400"
+          />
+        </label>
+        <button
+          type="submit"
+          class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+        >
+          Sign Up
+        </button>
+      </form>
+      <p v-if="error" class="mt-4 text-red-600 text-center">{{ error }}</p>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import authService from '@/services/auth.service'
-import {useAuthStore} from "@/stores/useAuthStore";
-
-const router = useRouter()
-const auth = useAuthStore()
+import { useAuthStore } from '@/stores/useAuthStore'
 
 const name = ref('')
 const email = ref('')
@@ -49,6 +78,9 @@ const confirmPassword = ref('')
 const showPassword = ref(false)
 const error = ref('')
 
+const router = useRouter()
+const auth = useAuthStore()
+
 async function onSubmit() {
   error.value = ''
   if (password.value !== confirmPassword.value) {
@@ -56,16 +88,10 @@ async function onSubmit() {
     return
   }
   try {
-    const { data } = await authService.register({ name: name.value, mail: mail.value, password: password.value })
-    auth.token = data.token
-    auth.user = data.user
-    localStorage.setItem('token', data.token)
+    await auth.register({ name: name.value, email: email.value, password: password.value })
     router.push({ name: 'reservations' })
-  } catch (e) {
+  } catch (e: any) {
     error.value = e.response?.data?.message || 'Registration failed'
   }
 }
 </script>
-
-<style>
-</style>

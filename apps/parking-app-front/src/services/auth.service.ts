@@ -16,6 +16,10 @@ export default {
     return api.post<AuthResponse>('/auth/login', creds)
   },
 
+  register(payload: { name: string; email: string; password: string }) {
+    return api.post<AuthResponse>('/auth/register', payload)
+  },
+
   logout() {
     return api.post('/auth/logout')
   },
