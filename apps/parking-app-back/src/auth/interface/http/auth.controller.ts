@@ -3,11 +3,10 @@ import {
   LoginUseCase,
   GenerateTokenUseCase,
 } from '../../application/use-cases';
-import { LoginDto, TokenResponseDto } from '../../application/dtos';
+import { LoginDto, TokenResponseDto, JwtPayload } from '../../application/dtos';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
-import { JwtPayload } from '@/auth/application/dtos/JwtPayload';
 
 @Controller('auth')
 export class AuthController {

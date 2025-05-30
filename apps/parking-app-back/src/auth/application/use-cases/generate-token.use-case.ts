@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UseCaseInterface } from '@/common/interface/use-case.interface';
-import { TokenResponseDto } from '../dtos';
-import { JwtPayload } from '@/auth/application/dtos/JwtPayload';
+import { TokenResponseDto, JwtPayload } from '../dtos';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()

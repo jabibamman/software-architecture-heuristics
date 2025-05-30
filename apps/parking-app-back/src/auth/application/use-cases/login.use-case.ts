@@ -1,13 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UseCaseInterface } from '@/common/interface/use-case.interface';
-import { LoginDto, TokenResponseDto } from '../dtos';
+import { LoginDto, TokenResponseDto, JwtPayload } from '../dtos';
 import { GetUserByEmailUseCase } from '@/users/application/use-cases';
 import {
   UserNotFoundException,
   UserNotValidPasswordException,
 } from '@/users/domain/exceptions';
-import { JwtPayload } from '@/auth/application/dtos/JwtPayload';
 import { GenerateTokenUseCase } from './generate-token.use-case';
 
 @Injectable()

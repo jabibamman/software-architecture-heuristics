@@ -1,13 +1,23 @@
 import { Module } from '@nestjs/common';
-import { GetUserByEmailUseCase } from './application/use-cases/get-user-by-email-use-case.service';
-import { RegisterUserUseCase } from './application/use-cases/register-user.use-case';
+import {
+  GetUserByEmailUseCase,
+  RegisterUserUseCase,
+} from './application/use-cases';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './domain/entities/user.entity';
+import { TypeOrmUserRepository } from '@/users/infrastructure/repositories/typeorm-user.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [],
-  providers: [GetUserByEmailUseCase, RegisterUserUseCase],
-  exports: [],
+  providers: [
+    GetUserByEmailUseCase,
+    RegisterUserUseCase,
+    {
+      provide: 'UserRepositoryPort',
+      useClass: TypeOrmUserRepository,
+    },
+  ],
+  exports: [GetUserByEmailUseCase],
 })
 export class UsersModule {}
