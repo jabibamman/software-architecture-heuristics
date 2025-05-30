@@ -7,17 +7,24 @@ import { LoginDto, TokenResponseDto, JwtPayload } from '../../application/dtos';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
+import { RegisterUseCase } from '@/auth/application/use-cases/register.use-case';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly loginUseCase: LoginUseCase,
+    private readonly registerUseCase: RegisterUseCase,
     private readonly generateTokenUseCase: GenerateTokenUseCase,
   ) {}
 
   @Post('login')
   async login(@Body() loginDto: LoginDto): Promise<TokenResponseDto> {
     return await this.loginUseCase.execute(loginDto);
+  }
+
+  @Post('register')
+  async register(@Body() loginDto: LoginDto): Promise<TokenResponseDto> {
+    return await this.registerUseCase.execute(loginDto);
   }
 
   @Get('refresh-token')

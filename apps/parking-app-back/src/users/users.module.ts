@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import {
   GetUserByEmailUseCase,
-  RegisterUserUseCase,
+  CreateUserUseCase,
 } from './application/use-cases';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './domain/entities/user.entity';
@@ -11,13 +11,14 @@ import { TypeOrmUserRepository } from '@/users/infrastructure/repositories/typeo
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [],
   providers: [
+    CreateUserUseCase,
     GetUserByEmailUseCase,
-    RegisterUserUseCase,
+    CreateUserUseCase,
     {
       provide: 'UserRepositoryPort',
       useClass: TypeOrmUserRepository,
     },
   ],
-  exports: [GetUserByEmailUseCase],
+  exports: [CreateUserUseCase, GetUserByEmailUseCase],
 })
 export class UsersModule {}
