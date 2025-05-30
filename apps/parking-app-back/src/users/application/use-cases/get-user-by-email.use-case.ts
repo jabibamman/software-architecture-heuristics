@@ -11,7 +11,7 @@ export class GetUserByEmailUseCase implements UseCaseInterface {
     private readonly repo: UserRepositoryPort,
   ) {}
 
-  async execute(email: string): Promise<User> {
+  async execute(email: string): Promise<User | null> {
     const user = await this.repo.findByEmail(email);
     if (!user) {
       throw new UserNotFoundException();
