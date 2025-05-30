@@ -9,6 +9,7 @@ import {
   ReservationBadRequestException,
   ReservationUnauthorizedException,
 } from '@/reservations/domain/exceptions';
+
 describe('CheckInReservationUseCase', () => {
   let useCase: CheckInReservationUseCase;
   let repo: jest.Mocked<ReservationRepositoryPort>;
@@ -31,6 +32,7 @@ describe('CheckInReservationUseCase', () => {
     dummyUser = new User();
     dummyUser.id = 'user-123';
   });
+
   it('✓ should check in successfully when reservation belongs to user and allowed', async () => {
     const now = new Date();
     now.setHours(10, 0, 0, 0);
