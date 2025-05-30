@@ -9,6 +9,8 @@ import { User } from '@/users/domain/entities/user.entity';
 import { EventPublisher } from '@/common/messaging/ports/event-publisher.port';
 import { SlotId } from '../../domain/value-objects/slot-id';
 import { ReservationBadRequestException } from '../../domain/exceptions';
+import { JwtPayload } from '@/auth/application/dtos/jwt-payload';
+import { GetUserByEmailUseCase } from '@/users/application/use-cases/get-user-by-email.use-case';
 
 @Injectable()
 export class CreateReservationUseCase {
@@ -17,11 +19,12 @@ export class CreateReservationUseCase {
     private readonly reservationRepo: ReservationRepositoryPort,
     @Inject('EventPublisher')
     private readonly eventPublisher: EventPublisher,
+    private readonly findUserByEmailUseCase: GetUserByEmailUseCase,
   ) {}
 
   async execute(
     dto: ReservationCreationDto,
-    currentUser: User,
+    payload: JwtPayload,
   ): Promise<ReservationResponseDto> {
     let slotIdVo: SlotId;
 
@@ -31,8 +34,12 @@ export class CreateReservationUseCase {
       throw new ReservationBadRequestException(err.message);
     }
 
+    const user = await this.findUserByEmailUseCase.execute(payload.email, {
+      throwIfNotFound: true,
+    });
+
     const reservation = Reservation.create(
-      currentUser.id,
+      user!.id,
       dto.slotId,
       new Date(dto.startDate),
       new Date(dto.endDate),

@@ -59,7 +59,7 @@ async function onSubmit() {
     const { data } = await authService.register({ name: name.value, mail: mail.value, password: password.value })
     auth.token = data.token
     auth.user = data.user
-    localStorage.setItem('auth_token', data.token)
+    localStorage.setItem('token', data.token)
     router.push({ name: 'reservations' })
   } catch (e) {
     error.value = e.response?.data?.message || 'Registration failed'
