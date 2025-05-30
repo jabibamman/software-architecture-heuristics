@@ -19,4 +19,11 @@ export class LoginDto {
   @IsNotEmpty()
   @IsStrongPassword()
   password!: string;
+
+  static from(email: string, password: string): LoginDto {
+    const dto = new LoginDto();
+    dto.email = email;
+    dto.password = password;
+    return dto;
+  }
 }
