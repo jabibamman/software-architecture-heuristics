@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { GetParkingStatsUseCase } from '../../application/use-cases/get-parking-stats.use-case';
+import { ParkingStatsDto } from '../../application/dtos/parking-stats.dto';
 
 @Controller('stats')
 export class StatsController {
@@ -7,8 +8,8 @@ export class StatsController {
     private readonly getParkingStatsUseCase: GetParkingStatsUseCase,
   ) {}
 
-  @Get()
-  getParkingStats(): Promise<void> {
+  @Get('/parking')
+  getParkingStats(): Promise<ParkingStatsDto> {
     return this.getParkingStatsUseCase.execute();
   }
 }

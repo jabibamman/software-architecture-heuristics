@@ -1,4 +1,3 @@
-// apps/parking-app-front/src/types/reservation.ts
 export interface ReservationCreation {
   slotId: string
   startDate: string // ISO or 'YYYY-MM-DDTHH:mm'
@@ -13,5 +12,9 @@ export interface ReservationResponse {
   startDate: string
   endDate: string
   needsCharger: boolean
+  notes?: string
+  checkedIn: boolean
+  checkedInAt?: string
   createdAt: string
+  updatedAt: string
 }
