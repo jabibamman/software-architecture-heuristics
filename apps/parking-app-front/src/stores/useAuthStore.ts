@@ -1,49 +1,42 @@
-import { defineStore } from 'pinia';
-
-// Définition de l'interface User si nécessaire
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  // ajoutez d'autres propriétés selon vos besoins
-}
+import { defineStore } from 'pinia'
+import type {User} from "@/types/user.ts";
+import authService from "@/services/auth.service.ts";
 
 export const useAuthStore = defineStore('auth', {
-  // État initial du store
   state: () => ({
+    token: '' as string,
     user: null as User | null,
   }),
 
-  // Actions pour modifier l'état
-  actions: {
-    /**
-     * Effectue la connexion de l'utilisateur
-     * Implémentez ici votre logique d'authentification (API, stockage, etc.)
-     */
-    async login() {
-      try {
-        // Exemple de logique de connexion
-        // const response = await api.post('/login', credentials);
-        // this.user = response.data.user;
+  getters: {
+    isAuthenticated: (state) => !!state.token,
+  },
 
-        // Pour l'instant, on simule un utilisateur connecté
-        this.user = {
-          id: 1,
-          name: 'Utilisateur Test',
-          email: 'test@example.com',
-        };
+  actions: {
+    async login(credentials: { email: string; password: string }) {
+      try {
+        const { data } = await authService.login(credentials)
+        this.token = data.token
+        this.user = data.user
+        localStorage.setItem('auth_token', this.token)
       } catch (error) {
-        console.error('Erreur lors de la connexion :', error);
-        throw error;
+        console.error('Erreur lors de la connexion :', error)
+        throw error
       }
+    },
+
+    initialize() {
+      const savedToken = localStorage.getItem('auth_token')
+      if (savedToken) this.token = savedToken
     },
 
     /**
      * Déconnecte l'utilisateur
      */
     logout() {
-      this.user = null;
-      // Ajoutez ici toute logique de nettoyage (tokens, localStorage, etc.)
+      this.token = ''
+      this.user = null
+      localStorage.removeItem('auth_token')
     },
   },
-});
+})

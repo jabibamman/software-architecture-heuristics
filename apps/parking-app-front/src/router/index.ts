@@ -12,14 +12,14 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/',
+      path: '/login',
       name: 'login',
       component: LoginView,
     },
     {
       path: '/reservations',
       name: 'reservations',
-      component: ReservationView,
+      component: ReservationsView, meta: { requiresAuth: true }
     },
     {
       path: '/about',
