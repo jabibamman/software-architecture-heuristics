@@ -61,6 +61,8 @@ const navLinks = [
   { path: '/', label: 'Home' },
   { path: '/about', label: 'About' },
   { path: '/login', label: 'Login' },
+  { path: '/stats', label: 'Stats' },
+  { path: '/dashboard', label: 'Dashboard' }, // TODO: if manager, show dashboard, else show stats
   { path: '/reservations', label: 'Reservations' },
 ]
 
