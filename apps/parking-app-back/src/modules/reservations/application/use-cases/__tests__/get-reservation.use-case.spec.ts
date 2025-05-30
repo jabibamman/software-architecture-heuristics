@@ -2,7 +2,7 @@ import { GetReservationUseCase } from '../get-reservation.use-case';
 import { ReservationRepositoryPort } from '../../ports/reservation.repository.port';
 import { ReservationResponseDto } from '../../dtos';
 import { Reservation } from '../../../domain/entities/reservation.entity';
-import { ReservationNotFoundException } from '../../../domain/exceptions/reservation-not-found.exception';
+import { ReservationNotFoundException } from '../../../domain/exceptions';
 
 describe('GetReservationUseCase', () => {
   let useCase: GetReservationUseCase;
@@ -10,14 +10,17 @@ describe('GetReservationUseCase', () => {
 
   beforeEach(() => {
     repo = {
-      findById: jest.fn(),
       findAll: jest.fn(),
+      findById: jest.fn(),
+      findByUserId: jest.fn(),
+      findReservationsForDate: jest.fn(),
       save: jest.fn(),
+      deleteById: jest.fn(),
     } as any;
     useCase = new GetReservationUseCase(repo);
   });
 
-  it('retourne le DTO quand la réservation existe', async () => {
+  it('should return a dto when reservation exists', async () => {
     const entity = Object.assign(new Reservation(), {
       id: 'r-1',
       slotId: 'A01',
@@ -36,7 +39,7 @@ describe('GetReservationUseCase', () => {
     expect(dto).toEqual(ReservationResponseDto.fromEntity(entity));
   });
 
-  it('throw ReservationNotFoundException quand la réservation est introuvable', async () => {
+  it('should throw ReservationNotFoundException when reservation is not found', async () => {
     repo.findById.mockResolvedValue(null);
     await expect(useCase.execute('nope')).rejects.toThrowError(
       ReservationNotFoundException,
