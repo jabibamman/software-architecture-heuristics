@@ -5,7 +5,7 @@ import {
   ReservationCheckedInEvent,
   ReservationCreatedEvent,
   ReservationReleasedEvent,
-} from '@/reservations/domain/events';
+} from '@/modules/reservations/domain/events';
 
 @Injectable()
 export class AmqpNotificationAdapter implements EventPublisher {

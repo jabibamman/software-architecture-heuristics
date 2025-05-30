@@ -44,103 +44,66 @@ Business rules reside in the **domain**; **Use Cases** orchestrate these rules t
 ## Target modules (backend NestJS)
 
 ```
-src/modules
-├─ reservations
-│  ├─ domain
-│  │  ├─ entities/
-│  │  │  ├─ Reservation.ts
-│  │  │  └─ ParkingSlot.ts
-│  │  ├─ value-objects/
-│  │  │  ├─ DateRange.ts
-│  │  │  └─ SlotId.ts
-│  │  ├─ events/
-│  │  │  ├─ reservation-created.event.ts
-│  │  │  ├─ reservation-checkedin.event.ts
-│  │  │  └─ reservation-released.event.ts
-│  │  └─ exceptions/
-│  │     └─ ReservationTooLong.exception.ts
-│  │
-│  ├─ application
-│  │  ├─ dto/
-│  │  │  ├─ CreateReservation.dto.ts
-│  │  │  └─ ReservationResponse.dto.ts
-│  │  ├─ ports/
-│  │  │  ├─ reservation.repository.port.ts
-│  │  │  └─ notification.publisher.port.ts
-│  │  └─ use-cases/
-│  │     ├─ create-reservation.use-case.ts
-│  │     ├─ checkin-reservation.use-case.ts
-│  │     └─ release-expired.use-case.ts
-│  │
-│  ├─ infrastructure
-│  │  ├─ repositories/
-│  │  │  └─ typeorm-reservation.repository.ts
-│  │  └─ adapters/
-│  │     └─ amqp-notification.adapter.ts
-│  │
-│  └─ interface
-│     ├─ http/
-│     │  └─ reservation.controller.ts
-│     └─ cron/
-│        └─ release-expired.job.ts
-│
-├─ users
-│  ├─ domain
-│  │  ├─ entities/
-│  │  │  └─ User.ts
-│  │  └─ exceptions/
-│  │     └─ UserNotFound.exception.ts
-│  │
-│  ├─ application
-│  │  ├─ dto/
-│  │  │  ├─ CreateUser.dto.ts
-│  │  │  └─ UserResponse.dto.ts
-│  │  ├─ ports/
-│  │  │  └─ user.repository.port.ts
-│  │  └─ use-cases/
-│  │     ├─ register-user.use-case.ts
-│  │     └─ get-user.use-case.ts
-│  │
-│  └─ infrastructure
-│     └─ repositories/
-│        └─ typeorm-user.repository.ts
-│
-├─ auth
-│  ├─ application
-│  │  ├─ dto/
-│  │  │  ├─ Login.dto.ts
-│  │  │  └─ TokenResponse.dto.ts
-│  │  ├─ ports/
-│  │  │  └─ auth.service.port.ts
-│  │  └─ use-cases/
-│  │     ├─ login.use-case.ts
-│  │     └─ refresh-token.use-case.ts
-│  │
-│  ├─ infrastructure
-│  │  └─ jwt/
-│  │     └─ jwt-adapter.ts
-│  │
-│  └─ interface
-│     └─ http/
-│        └─ auth.controller.ts
-│
-├─ stats
-│  ├─ application
-│  │  └─ use-cases/
-│  │     └─ get-parking-stats.use-case.ts
-│  │
-│  └─ interface
-│     └─ http/
-│        └─ stats.controller.ts
-│
-└─ notifications
-   ├─ application
-   │  └─ use-cases/
-   │     └─ send-notification.use-case.ts
+src
+└─ modules
+   ├─ reservations
+   │  ├─ domain
+   │  │  ├─ entities
+   │  │  ├─ value-objects
+   │  │  ├─ events
+   │  │  └─ exceptions
+   │  │
+   │  ├─ application
+   │  │  ├─ dto
+   │  │  ├─ ports
+   │  │  └─ use-cases
+   │  │
+   │  ├─ infrastructure
+   │  │  ├─ repositories
+   │  │  └─ adapters
+   │  │
+   │  └─ interface
+   │     ├─ http
+   │     └─ cron
    │
-   └─ infrastructure
-      └─ adapters/
-         └─ amqp-notification.adapter.ts
+   ├─ users
+   │  ├─ domain
+   │  │  ├─ entities
+   │  │  └─ exceptions
+   │  │
+   │  ├─ application
+   │  │  ├─ dto
+   │  │  ├─ ports
+   │  │  └─ use-cases
+   │  │
+   │  └─ infrastructure
+   │     └─ repositories
+   │
+   ├─ auth
+   │  ├─ application
+   │  │  ├─ dto
+   │  │  ├─ ports
+   │  │  └─ use-cases
+   │  │
+   │  ├─ infrastructure
+   │  │  └─ jwt
+   │  │
+   │  └─ interface
+   │     └─ http
+   │
+   ├─ stats
+   │  ├─ application
+   │  │  └─ use-cases
+   │  │
+   │  └─ interface
+   │     └─ http
+   │
+   └─ notifications
+      ├─ application
+      │  └─ use-cases
+      │
+      └─ infrastructure
+         └─ adapters
 ```
 
 ---
