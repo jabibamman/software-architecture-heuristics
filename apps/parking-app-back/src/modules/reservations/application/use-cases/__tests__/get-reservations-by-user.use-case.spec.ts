@@ -1,29 +1,40 @@
-import { GetReservationsUseCase } from '../get-reservations.use-case';
 import { ReservationRepositoryPort } from '../../ports/reservation.repository.port';
 import { ReservationResponseDto } from '../../dtos/reservation-response.dto';
 import { Reservation } from '../../../domain/entities/reservation.entity';
+import { GetReservationsByUserUseCase } from '@/modules/reservations/application/use-cases';
+import { User } from '@/modules/users/domain/entities/user.entity';
+import { JwtPayload } from '@/modules/auth/application/dtos';
 
-describe('GetReservationsUseCase', () => {
-  let useCase: GetReservationsUseCase;
+describe('GetReservationsByUserUseCase', () => {
+  let useCase: GetReservationsByUserUseCase;
   let repo: jest.Mocked<ReservationRepositoryPort>;
+  let dummyUser: User;
 
   beforeEach(() => {
     repo = {
       findAll: jest.fn(),
       findById: jest.fn(),
+      findByUserId: jest.fn(),
+      findReservationsForDate: jest.fn(),
       save: jest.fn(),
+      deleteById: jest.fn(),
     } as any;
-    useCase = new GetReservationsUseCase(repo);
+    useCase = new GetReservationsByUserUseCase(repo);
+    dummyUser = new User();
+    dummyUser.id = 'user-123';
+    dummyUser.email = 'john@example.com';
   });
 
-  it('retourne une liste de DTO vide si aucune réservation', async () => {
-    repo.findAll.mockResolvedValue([]);
-    const result = await useCase.execute();
-    expect(repo.findAll).toHaveBeenCalled();
+  it('should return an empty list when no reservation', async () => {
+    const payload = JwtPayload.from(dummyUser);
+    repo.findByUserId.mockResolvedValue([]);
+    const result = await useCase.execute(payload);
+    expect(repo.findByUserId).toHaveBeenCalled();
     expect(result).toEqual([]);
   });
 
-  it('mappe correctement plusieurs entités en DTOs', async () => {
+  it('should return a list of dto', async () => {
+    const payload = JwtPayload.from(dummyUser);
     const e1 = Object.assign(new Reservation(), {
       id: 'r1',
       slotId: 'A01',
@@ -34,6 +45,7 @@ describe('GetReservationsUseCase', () => {
       checkedInAt: null,
       createdAt: new Date('2025-05-30T08:00:00Z'),
       updatedAt: new Date('2025-05-30T08:00:00Z'),
+      userId: dummyUser.id,
     });
     const e2 = Object.assign(new Reservation(), {
       id: 'r2',
@@ -45,13 +57,11 @@ describe('GetReservationsUseCase', () => {
       checkedInAt: new Date('2025-06-02T09:15:00Z'),
       createdAt: new Date('2025-05-30T09:00:00Z'),
       updatedAt: new Date('2025-05-30T09:05:00Z'),
+      userId: dummyUser.id + 'not-matching', // This should not be returned
     });
-    repo.findAll.mockResolvedValue([e1, e2]);
+    repo.findByUserId.mockResolvedValue([e1]);
 
-    const result = await useCase.execute();
-    expect(result).toEqual([
-      ReservationResponseDto.fromEntity(e1),
-      ReservationResponseDto.fromEntity(e2),
-    ]);
+    const result = await useCase.execute(payload);
+    expect(result).toEqual([ReservationResponseDto.fromEntity(e1)]);
   });
 });

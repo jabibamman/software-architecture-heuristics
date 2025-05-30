@@ -29,22 +29,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useReservationsStore } from '@/stores/useReservationsStore'
 import ReservationModal from '@/components/ReservationModal.vue'
 import ReservationList from '@/components/ReservationList.vue'
 import { PlusIcon } from 'lucide-vue-next'
+import { useRoute } from 'vue-router'
 
 const showModal = ref(false)
+const route = useRoute() 
 const store = useReservationsStore()
 
-onMounted(() => {
-  store.fetchAll()
-})
+watch(
+   () => route.name,
+   (name) => {
+     if (name === 'allReservations') {
+       store.fetchAllReservations()
+     } else {
+       store.fetchUserReservations()
+     }
+   },
+   { immediate: true }
+)
 
 function onCreated() {
   showModal.value = false
-  store.fetchAll()
+  if (route.name === 'allReservations') {
+    store.fetchAllReservations()
+  } else {
+    store.fetchUserReservations()
+  }
 }
 
 async function onCheckIn(id: string) {

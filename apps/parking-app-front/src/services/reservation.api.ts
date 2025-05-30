@@ -10,6 +10,10 @@ export function getReservations(): Promise<ReservationResponse[]> {
   return api.get('/reservation').then((r) => r.data)
 }
 
+export function getAllReservations(): Promise<ReservationResponse[]> {
+  return api.get('/reservation/all').then((r) => r.data)
+}
+
 export function getReservation(id: string): Promise<ReservationResponse> {
   return api.get(`/reservation/${id}`).then((r) => r.data)
 }

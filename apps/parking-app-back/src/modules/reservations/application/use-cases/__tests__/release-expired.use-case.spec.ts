@@ -28,14 +28,14 @@ describe('ReleaseExpiredReservationsUseCase', () => {
   beforeEach(() => {
     repo = {
       findAll: jest.fn(),
-      deleteById: jest.fn(),
-      save: jest.fn(),
       findById: jest.fn(),
+      findByUserId: jest.fn(),
+      findReservationsForDate: jest.fn(),
+      save: jest.fn(),
+      deleteById: jest.fn(),
     } as any;
 
-    publisher = {
-      publish: jest.fn(),
-    } as any;
+    publisher = { publish: jest.fn() } as any;
 
     useCase = new ReleaseExpiredReservationsUseCase(repo, publisher);
 
@@ -49,7 +49,7 @@ describe('ReleaseExpiredReservationsUseCase', () => {
     jest.resetAllMocks();
   });
 
-  it('ne supprime et ne publie rien si aucune réservation n’est expirée', async () => {
+  it('should not pushish nor delete when no reservation is expired', async () => {
     const todayCheckedIn = makeReservation({ checkedIn: true });
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -62,7 +62,7 @@ describe('ReleaseExpiredReservationsUseCase', () => {
     expect(publisher.publish).not.toHaveBeenCalled();
   });
 
-  it('supprime et publie un seul événement pour chaque résa expirée', async () => {
+  it('should delete and publish one event for each expired reservation', async () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -98,7 +98,7 @@ describe('ReleaseExpiredReservationsUseCase', () => {
     );
   });
 
-  it('gère plusieurs résas expirées', async () => {
+  it('should manage multiple expired reservations', async () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 

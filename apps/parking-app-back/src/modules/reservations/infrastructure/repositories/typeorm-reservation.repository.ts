@@ -27,6 +27,10 @@ export class TypeOrmReservationRepository implements ReservationRepositoryPort {
     return this.repo.find();
   }
 
+  async findByUserId(userId: string): Promise<Reservation[]> {
+    return this.repo.find({ where: { userId } });
+  }
+
   async findReservationsForDate(date: Date): Promise<Reservation[]> {
     return this.repo.find({
       where: {

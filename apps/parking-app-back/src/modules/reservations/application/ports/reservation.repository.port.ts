@@ -5,5 +5,6 @@ export interface ReservationRepositoryPort {
   findAll(): Promise<Reservation[]>;
   save(reservation: Reservation): Promise<Reservation>;
   findById(id: string): Promise<Reservation | null>;
+  findByUserId(userId: string): Promise<Reservation[]>;
   findReservationsForDate(date: Date): Promise<Reservation[]>;
 }
