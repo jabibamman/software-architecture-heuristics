@@ -30,6 +30,11 @@ prof@example.com
 Prof123456?
 ```
 
+### APPS URLS
+FRONT : `localhost:5173`
+
+BACK : `localhost:3000`
+
 ## 🔧 Manual Start (alternative)
 
 If you prefer doing it manually:
