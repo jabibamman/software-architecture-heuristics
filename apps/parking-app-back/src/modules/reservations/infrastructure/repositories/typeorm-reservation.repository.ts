@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { Reservation } from '../../domain/entities/reservation.entity';
 import { ReservationRepositoryPort } from '../../application/ports/reservation.repository.port';
 import { ReservationNotFoundException } from '@/modules/reservations/domain/exceptions';
@@ -25,6 +25,15 @@ export class TypeOrmReservationRepository implements ReservationRepositoryPort {
 
   async findAll(): Promise<Reservation[]> {
     return this.repo.find();
+  }
+
+  async findReservationsForDate(date: Date): Promise<Reservation[]> {
+    return this.repo.find({
+      where: {
+        startDate: LessThanOrEqual(date),
+        endDate: MoreThanOrEqual(date),
+      },
+    });
   }
 
   async deleteById(id: string): Promise<void> {

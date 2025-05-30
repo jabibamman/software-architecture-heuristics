@@ -1,4 +1,5 @@
 import api from '@/services/api'
+import type { Slot } from '@/types/reservations'
 import type { ReservationCreation, ReservationResponse } from '@/types/reservations'
 
 export function createReservation(data: ReservationCreation): Promise<ReservationResponse> {

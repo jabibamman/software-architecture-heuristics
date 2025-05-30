@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 bg-gray-50 min-h-screen">
+  <div class="p-8 bg-gray-50 min-h-screen">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-3xl font-bold text-gray-800">Reservations</h1>
       <button
@@ -17,11 +17,13 @@
       @created="onCreated"
     />
 
-    <div v-if="store.loading" class="text-center py-8">Chargement…</div>
+    <div v-if="store.loading" class="text-center py-8">Loading…</div>
     <div v-else-if="store.error" class="text-red-600 py-8">{{ store.error }}</div>
-    <ReservationList 
-      :reservations="store.list" 
-      @check-in="onCheckIn" 
+
+    <ReservationList
+      v-else
+      :reservations="store.list"
+      @check-in="onCheckIn"
     />
   </div>
 </template>
@@ -40,15 +42,19 @@ onMounted(() => {
   store.fetchAll()
 })
 
-function onCreated(newRes: any) {
+function onCreated() {
   showModal.value = false
+  store.fetchAll()
 }
 
 async function onCheckIn(id: string) {
   try {
     await store.checkIn(id)
-  } catch (e) {
-    console.error(e)
+  } catch {
+
   }
 }
 </script>
+
+<style scoped>
+</style>

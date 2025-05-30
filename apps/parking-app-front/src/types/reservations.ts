@@ -18,3 +18,8 @@ export interface ReservationResponse {
   createdAt: string
   updatedAt: string
 }
+
+export interface Slot {
+  id: string
+  reserved: boolean
+}

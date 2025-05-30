@@ -8,12 +8,14 @@ import { TypeOrmReservationRepository } from './infrastructure/repositories/type
 import { ReleaseExpiredJob } from './interface/cron/release-expired.job';
 import { UsersModule } from '@/modules/users/users.module';
 import { MessagingModule } from '@/common/messaging/messaging.module';
+import { ParkingModule } from '@/modules/parking/parking.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Reservation]),
     MessagingModule,
     UsersModule,
+    ParkingModule,
   ],
   controllers: [ReservationController],
   providers: [
