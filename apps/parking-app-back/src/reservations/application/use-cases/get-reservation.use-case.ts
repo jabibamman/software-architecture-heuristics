@@ -14,13 +14,6 @@ export class GetReservationUseCase {
     if (!reservation) {
       throw new NotFoundException(`Reservation ${id} not found`);
     }
-    return {
-      id: reservation.id,
-      slotId: reservation.slotId,
-      startDate: reservation.startDate.toISOString(),
-      endDate: reservation.endDate.toISOString(),
-      needsCharger: reservation.needsCharger,
-      createdAt: reservation.createdAt.toISOString(),
-    };
+    return ReservationResponseDto.fromEntity(reservation);
   }
 }

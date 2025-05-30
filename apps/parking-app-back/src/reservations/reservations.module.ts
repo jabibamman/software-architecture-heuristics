@@ -1,18 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ReservationController } from './interface/http/reservation.controller';
-import {
-  CheckInReservationUseCase,
-  CreateReservationUseCase,
-  ReleaseExpiredReservationUseCase,
-  useCases,
-} from './application/use-cases';
-import { Reservation } from './domain/entities/reservation';
+import { useCases } from './application/use-cases';
+import { Reservation } from './domain/entities/reservation.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmReservationRepository } from './infrastructure/repositories/typeorm-reservation.repository';
-//import { ParkingSlot } from './domain/entities/parking-slot';
+
+import { MessagingModule } from '../common/messaging/messaging.module';
+import { ReleaseExpiredJob } from './interface/cron/release-expired.job';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Reservation /*ParkingSlot*/])],
+  imports: [TypeOrmModule.forFeature([Reservation]), MessagingModule],
   controllers: [ReservationController],
   providers: [
     ...useCases,
@@ -20,6 +17,7 @@ import { TypeOrmReservationRepository } from './infrastructure/repositories/type
       provide: 'ReservationRepositoryPort',
       useClass: TypeOrmReservationRepository,
     },
+    ReleaseExpiredJob,
   ],
   exports: [],
 })

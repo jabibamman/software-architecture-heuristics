@@ -4,10 +4,13 @@ import {
   ReservationResponseDto,
 } from '../../application/dtos';
 import {
+  CheckInReservationUseCase,
   CreateReservationUseCase,
   GetReservationUseCase,
   GetReservationsUseCase,
 } from '../../application/use-cases';
+import { CheckInReservationDto } from '../../application/dtos/checkin-reservation.dto';
+import { User } from '@/users/domain/entities/user.entity';
 
 @Controller('reservation')
 export class ReservationController {
@@ -16,15 +19,17 @@ export class ReservationController {
     private readonly getReservationUseCase: GetReservationUseCase,
     private readonly getReservationsUseCase: GetReservationsUseCase,
 
-    // private readonly checkInReservationUseCase: CheckInReservationUseCase,
-    // private readonly releaseExpiredReservationUseCase: ReleaseExpiredReservationUseCase,
+    private readonly checkInReservationUseCase: CheckInReservationUseCase,
   ) {}
 
   @Post()
   createReservation(
     @Body() reservationDto: ReservationCreationDto,
   ): Promise<ReservationResponseDto> {
-    return this.createReservationUseCase.execute(reservationDto);
+    const dummyUser = new User();
+    dummyUser.id = '00000000-0000-0000-0000-000000000000';
+    // TODO: remove dummyUser when auth is implemented
+    return this.createReservationUseCase.execute(reservationDto, dummyUser);
   }
 
   @Get(':id')
@@ -35,5 +40,15 @@ export class ReservationController {
   @Get()
   getReservations(): Promise<ReservationResponseDto[]> {
     return this.getReservationsUseCase.execute();
+  }
+
+  @Post(':id/checkin')
+  checkInReservation(
+    @Body() dto: CheckInReservationDto,
+  ): Promise<ReservationResponseDto> {
+    const dummy = new User();
+    dummy.id = '00000000-0000-0000-0000-000000000000';
+    // TODO: remove dummyUser when auth is implemented
+    return this.checkInReservationUseCase.execute(dto, dummy);
   }
 }
