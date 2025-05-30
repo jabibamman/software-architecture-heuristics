@@ -30,9 +30,7 @@ export const useAuthStore = defineStore('auth', {
       if (savedToken) this.token = savedToken
     },
 
-    /**
-     * Déconnecte l'utilisateur
-     */
+
     logout() {
       this.token = ''
       this.user = null

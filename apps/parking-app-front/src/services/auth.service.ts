@@ -3,7 +3,7 @@ import api from '@/services/api'
 
 
 export interface LoginCredentials {
-  mail: string
+  email: string
   password: string
 }
 
