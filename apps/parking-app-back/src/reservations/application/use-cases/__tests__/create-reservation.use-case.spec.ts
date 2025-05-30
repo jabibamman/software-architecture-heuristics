@@ -1,19 +1,26 @@
 import { User } from '@/users/domain/entities/user.entity';
-import { CreateReservationUseCase } from '../create-reservation.use-case';
 import { ReservationRepositoryPort } from '../../ports/reservation.repository.port';
 import { EventPublisher } from '@/common/messaging/ports/event-publisher.port';
-import { ReservationCreationDto, ReservationResponseDto } from '../../dtos';
-import { ReservationPolicy } from '../../../domain/services/reservation-policy';
-import { Reservation } from '../../../domain/entities/reservation.entity';
-import { ReservationCreatedEvent } from '../../../domain/events';
-import { SlotId } from '../../../domain/value-objects';
-import { ReservationBadRequestException } from '../../../domain/exceptions';
+import { GetUserByEmailUseCase } from '@/users/application/use-cases/get-user-by-email.use-case';
 
-describe('CreateReservationUseCase', () => {
+import { JwtPayload } from '@/auth/application/dtos/jwt-payload';
+import { CreateReservationUseCase } from '../create-reservation.use-case';
+import { ReservationCreationDto } from '../../dtos/reservation-creation.dto';
+
+import { Reservation } from '@/reservations/domain/entities/reservation.entity';
+import { ReservationCreatedEvent } from '@/reservations/domain/events/reservation-created.event';
+import { ReservationResponseDto } from '../../dtos/reservation-response.dto';
+import { SlotId } from '@/reservations/domain/value-objects';
+import { ReservationPolicy } from '@/reservations/domain/services/reservation-policy';
+import { ReservationBadRequestException } from '@/reservations/domain/exceptions';
+
+describe('CreateReservationUseCase (with JWT)', () => {
   let useCase: CreateReservationUseCase;
   let repo: jest.Mocked<ReservationRepositoryPort>;
   let publisher: jest.Mocked<EventPublisher>;
-  let dummyUser: User;
+  let findUser: jest.Mocked<GetUserByEmailUseCase>;
+  let fakeUser: User;
+  let payload: JwtPayload;
 
   beforeEach(() => {
     repo = {
@@ -22,14 +29,17 @@ describe('CreateReservationUseCase', () => {
       findAll: jest.fn(),
     } as any;
 
-    publisher = {
-      publish: jest.fn(),
-    } as any;
+    publisher = { publish: jest.fn() } as any;
+    findUser = { execute: jest.fn() } as any;
 
-    useCase = new CreateReservationUseCase(repo, publisher);
+    useCase = new CreateReservationUseCase(repo, publisher, findUser);
 
-    dummyUser = new User();
-    dummyUser.id = 'user-123';
+    fakeUser = new User();
+    fakeUser.id = 'user-123';
+    fakeUser.email = 'alice@example.com';
+
+    payload = JwtPayload.from(fakeUser);
+    findUser.execute.mockResolvedValue(fakeUser);
   });
 
   afterEach(() => {
@@ -45,17 +55,13 @@ describe('CreateReservationUseCase', () => {
       notes: 'Test note',
     });
 
-    // Let SlotId.create use its real implementation:
     const createSpy = jest.spyOn(SlotId, 'create');
-
-    // Stub out business‐rule validation:
     jest
       .spyOn(ReservationPolicy, 'validateReservation')
       .mockImplementation(() => {});
 
-    // Prepare a fake entity from repository.save
     const entity = Reservation.create(
-      dummyUser.id,
+      fakeUser.id,
       dto.slotId,
       new Date(dto.startDate),
       new Date(dto.endDate),
@@ -67,12 +73,15 @@ describe('CreateReservationUseCase', () => {
     entity.checkedIn = false;
     repo.save.mockResolvedValue(entity);
 
-    const result = await useCase.execute(dto, dummyUser);
+    const result = await useCase.execute(dto, payload);
 
     expect(createSpy).toHaveBeenCalledWith(dto.slotId);
+    expect(findUser.execute).toHaveBeenCalledWith(payload.email, {
+      throwIfNotFound: true,
+    });
     expect(repo.save).toHaveBeenCalledWith(
       expect.objectContaining({
-        userId: dummyUser.id,
+        userId: fakeUser.id,
         slotId: dto.slotId,
         notes: dto.notes,
       }),
@@ -95,14 +104,15 @@ describe('CreateReservationUseCase', () => {
       throw new Error('invalid slot');
     });
 
-    await expect(useCase.execute(dto, dummyUser)).rejects.toThrow(
+    await expect(useCase.execute(dto, payload)).rejects.toThrow(
       new ReservationBadRequestException('invalid slot'),
     );
+    expect(findUser.execute).not.toHaveBeenCalled();
     expect(repo.save).not.toHaveBeenCalled();
     expect(publisher.publish).not.toHaveBeenCalled();
   });
 
-  it('rejects when business‐rule validation fails', async () => {
+  it('rejects when business-rule validation fails', async () => {
     const dto = Object.assign(new ReservationCreationDto(), {
       slotId: 'A01',
       startDate: '2025-06-01T09:00:00Z',
@@ -111,16 +121,18 @@ describe('CreateReservationUseCase', () => {
     });
 
     jest.spyOn(SlotId, 'create');
-
     jest
       .spyOn(ReservationPolicy, 'validateReservation')
       .mockImplementation(() => {
         throw new Error('too many days');
       });
 
-    await expect(useCase.execute(dto, dummyUser)).rejects.toThrow(
+    await expect(useCase.execute(dto, payload)).rejects.toThrow(
       new ReservationBadRequestException('too many days'),
     );
+    expect(findUser.execute).toHaveBeenCalledWith(payload.email, {
+      throwIfNotFound: true,
+    });
     expect(repo.save).not.toHaveBeenCalled();
     expect(publisher.publish).not.toHaveBeenCalled();
   });

@@ -1,104 +1,120 @@
-import { CheckInReservationUseCase } from '../checkin-reservation.use-case';
 import { ReservationRepositoryPort } from '../../ports/reservation.repository.port';
 import { EventPublisher } from '@/common/messaging/ports/event-publisher.port';
-import { Reservation } from '../../../domain/entities/reservation.entity';
-import { CheckInReservationDto, ReservationResponseDto } from '../../dtos';
-import { ReservationCheckedInEvent } from '../../../domain/events';
-import { User } from '@/users/domain/entities/user.entity';
-import {
-  ReservationBadRequestException,
-  ReservationUnauthorizedException,
-} from '@/reservations/domain/exceptions';
+import { GetUserByEmailUseCase } from '@/users/application/use-cases/get-user-by-email.use-case';
 
-describe('CheckInReservationUseCase', () => {
+import { JwtPayload } from '@/auth/application/dtos/jwt-payload';
+import { User } from '@/users/domain/entities/user.entity';
+import { CheckInReservationUseCase } from '../checkin-reservation.use-case';
+import { Reservation } from '@/reservations/domain/entities/reservation.entity';
+import { ReservationCheckedInEvent } from '@/reservations/domain/events/reservation-checked-in.event';
+import { ReservationResponseDto } from '../../dtos/reservation-response.dto';
+import { ReservationUnauthorizedException } from '@/reservations/domain/exceptions';
+import { ReservationBadRequestException } from '@/reservations/domain/exceptions';
+import { CheckInReservationDto } from '../../dtos/checkin-reservation.dto';
+
+describe('CheckInReservationUseCase (with JWT)', () => {
   let useCase: CheckInReservationUseCase;
   let repo: jest.Mocked<ReservationRepositoryPort>;
   let publisher: jest.Mocked<EventPublisher>;
-  let dummyUser: User;
+  let findUser: jest.Mocked<GetUserByEmailUseCase>;
+
+  let fakeUser: User;
+  let payload: JwtPayload;
 
   beforeEach(() => {
     repo = {
       findById: jest.fn(),
       save: jest.fn(),
       findAll: jest.fn(),
-    } as unknown as jest.Mocked<ReservationRepositoryPort>;
+    } as any;
 
-    publisher = {
-      publish: jest.fn(),
-    } as jest.Mocked<EventPublisher>;
+    publisher = { publish: jest.fn() } as any;
+    findUser = { execute: jest.fn() } as any;
 
-    useCase = new CheckInReservationUseCase(repo, publisher);
+    useCase = new CheckInReservationUseCase(repo, publisher, findUser);
 
-    dummyUser = new User();
-    dummyUser.id = 'user-123';
+    fakeUser = new User();
+    fakeUser.id = 'user-123';
+    fakeUser.email = 'alice@example.com';
+
+    payload = JwtPayload.from(fakeUser);
+    findUser.execute.mockResolvedValue(fakeUser);
   });
 
-  it('✓ should check in successfully when reservation belongs to user and allowed', async () => {
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  it('✓ checks in successfully when reservation belongs to the JWT user and policy allows', async () => {
+    // freeze time at 10:00
     const now = new Date();
     now.setHours(10, 0, 0, 0);
     jest.useFakeTimers().setSystemTime(now);
 
     const reservation = Reservation.create(
-      'user-123',
+      fakeUser.id,
       'A01',
-      new Date(),
-      new Date(),
+      new Date(now),
+      new Date(now),
       false,
-      undefined,
     );
-
     reservation.checkedIn = false;
     reservation.checkedInAt = undefined;
-
-    reservation.createdAt = new Date();
-    reservation.updatedAt = new Date();
+    reservation.createdAt = now;
+    reservation.updatedAt = now;
 
     repo.findById.mockResolvedValue(reservation);
-
     repo.save.mockImplementation(async (r) => r);
 
     const dto = new CheckInReservationDto();
-    dto.id = 'whatever-id';
+    dto.id = 'resv-1';
 
-    const result = await useCase.execute(dto, dummyUser);
+    const result = await useCase.execute(dto, payload);
+
+    expect(findUser.execute).toHaveBeenCalledWith(payload.email, {
+      throwIfNotFound: true,
+    });
 
     expect(repo.findById).toHaveBeenCalledWith(dto.id);
 
-    expect(repo.save).toHaveBeenCalled();
-    const savedArg = repo.save.mock.calls[0][0] as Reservation;
-    expect(savedArg.checkedIn).toBe(true);
-    expect(savedArg.checkedInAt).toBeInstanceOf(Date);
+    const saved = repo.save.mock.calls[0][0] as Reservation;
+    expect(saved.checkedIn).toBe(true);
+    expect(saved.checkedInAt).toBeInstanceOf(Date);
 
     expect(publisher.publish).toHaveBeenCalledWith(
-      new ReservationCheckedInEvent(savedArg),
+      new ReservationCheckedInEvent(saved),
     );
 
-    expect(result).toEqual(ReservationResponseDto.fromEntity(savedArg));
-
-    jest.useRealTimers();
+    expect(result).toEqual(ReservationResponseDto.fromEntity(saved));
   });
 
-  it('✗ should throw if reservation does not belong to current user', async () => {
-    const reservation = Reservation.create(
+  it('✗ throws if the reservation belongs to someone else', async () => {
+    const other = Reservation.create(
       'other-user',
       'A01',
       new Date(),
       new Date(),
       false,
     );
-    repo.findById.mockResolvedValue(reservation);
+    repo.findById.mockResolvedValue(other);
 
     const dto = new CheckInReservationDto();
-    dto.id = 'id-2';
+    dto.id = 'resv-2';
 
-    await expect(useCase.execute(dto, dummyUser)).rejects.toThrow(
+    await expect(useCase.execute(dto, payload)).rejects.toThrow(
       ReservationUnauthorizedException,
     );
+
+    expect(findUser.execute).toHaveBeenCalledWith(payload.email, {
+      throwIfNotFound: true,
+    });
     expect(repo.save).not.toHaveBeenCalled();
     expect(publisher.publish).not.toHaveBeenCalled();
   });
 
-  it('✗ should throw if check-in not allowed by policy', async () => {
+  it('✗ throws if check-in is not allowed by the policy (too early/late)', async () => {
+    // freeze time at 10:00
     const now = new Date();
     now.setHours(10, 0, 0, 0);
     jest.useFakeTimers().setSystemTime(now);
@@ -107,24 +123,26 @@ describe('CheckInReservationUseCase', () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
 
-    const reservation = Reservation.create(
-      'user-123',
+    const futureRes = Reservation.create(
+      fakeUser.id,
       'A01',
       tomorrow,
       tomorrow,
       false,
     );
-    repo.findById.mockResolvedValue(reservation);
+    repo.findById.mockResolvedValue(futureRes);
 
     const dto = new CheckInReservationDto();
-    dto.id = 'id-3';
+    dto.id = 'resv-3';
 
-    await expect(useCase.execute(dto, dummyUser)).rejects.toThrow(
+    await expect(useCase.execute(dto, payload)).rejects.toThrow(
       ReservationBadRequestException,
     );
+
+    expect(findUser.execute).toHaveBeenCalledWith(payload.email, {
+      throwIfNotFound: true,
+    });
     expect(repo.save).not.toHaveBeenCalled();
     expect(publisher.publish).not.toHaveBeenCalled();
-
-    jest.useRealTimers();
   });
 });
