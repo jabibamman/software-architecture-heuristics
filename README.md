@@ -23,6 +23,13 @@ This will:
 2. Install dependencies using `pnpm`
 3. Launch both the backend and frontend in development mode
 
+**IMPORTANT** A Default user is created when you start the app for the first time, you can login with this credential:
+
+```json
+prof@example.com
+Prof123456?
+```
+
 ## 🔧 Manual Start (alternative)
 
 If you prefer doing it manually:
