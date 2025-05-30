@@ -72,7 +72,8 @@ const allLinks = [
   { path: '/about',       label: 'About',        auth: 'any' },
   { path: '/login',       label: 'Login',        auth: 'guest' },
   { path: '/register',    label: 'Register',     auth: 'guest' },
-  { path: '/reservations',label: 'Reservations', auth: 'user' },
+  { path: '/reservations',label: 'My Reservation', auth: 'user' },
+  { path: '/reservations/all',label: 'All Reservations', auth: 'user' },
   { path: '/stats',       label: 'Stats',        auth: 'user' },
   { path: '/dashboard',   label: 'Dashboard',    auth: 'user' },
 ]

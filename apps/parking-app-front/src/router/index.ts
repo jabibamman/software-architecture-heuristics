@@ -3,9 +3,8 @@ import HomeView from '@/views/HomeView.vue'
 import ReservationView from '@/views/ReservationView.vue'
 import StatsView from '@/views/StatsView.vue'
 import DashboardView from '@/views/DashboardView.vue'
-import LoginView from "@/views/LoginView.vue";
-import RegisterView from "@/views/RegisterView.vue";
-
+import LoginView from '@/views/LoginView.vue'
+import RegisterView from '@/views/RegisterView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,7 +22,14 @@ const router = createRouter({
     {
       path: '/reservations',
       name: 'reservations',
-      component: ReservationView, meta: { requiresAuth: true }
+      component: ReservationView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/reservations/all',
+      name: 'allReservations',
+      component: ReservationView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/about',

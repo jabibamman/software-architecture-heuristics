@@ -15,6 +15,9 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { JwtPayload } from '@/modules/auth/application/dtos';
+import { Role } from '@/modules/users/domain/value-objects/role.value-object';
+import { Roles } from '@/common/decorators/roles.decorator';
+import { RolesGuard } from '@/common/guards/roles.guard';
 
 @Controller('reservation')
 export class ReservationController {
@@ -36,18 +39,19 @@ export class ReservationController {
     return this.createReservationUseCase.execute(reservationDto, user);
   }
 
+  @Get('all')
+  @Roles(Role.MANAGER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  getAllReservations(): Promise<ReservationResponseDto[]> {
+    return this.getReservationsUseCase.execute();
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   getReservation(@Param('id') id: string): Promise<ReservationResponseDto> {
     return this.getReservationUseCase.execute(id);
-  }
-
-  @Get('all')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  getAllReservations(): Promise<ReservationResponseDto[]> {
-    return this.getReservationsUseCase.execute();
   }
 
   @Get()
