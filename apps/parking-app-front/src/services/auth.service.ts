@@ -14,8 +14,8 @@ export interface AuthResponse {
 
 export default {
 
-  login(credentials: LoginCredentials) {
-    return api.post<AuthResponse>('/auth/login', credentials)
+  login(creds: LoginCredentials) {
+    return api.post<AuthResponse>('/auth/login', creds)
   },
 
   logout() {
