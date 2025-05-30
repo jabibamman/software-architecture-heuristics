@@ -23,12 +23,21 @@ This will:
 2. Install dependencies using `pnpm`
 3. Launch both the backend and frontend in development mode
 
-**IMPORTANT** A Default user is created when you start the app for the first time, you can login with this credential:
+**IMPORTANT** multiple default user are created when you start the app for the first time, you can login with these credentials for each roles
 
-```json
-prof@example.com
-Prof123456?
-```
+#### Manager 
+
+email: `manager@parkease.com`
+password: `Manager123!`
+
+#### Secretary
+
+email: `secretary@parkease.com`
+password: `Secret123!`
+
+#### Employee
+email: `employee@parkease.com`
+password: `Employee123!`
 
 ### APPS URLS
 FRONT : `localhost:5173`

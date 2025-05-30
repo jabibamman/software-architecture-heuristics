@@ -24,17 +24,16 @@ export class LoginUseCase
     const user = await this.findByEmail.execute(email, {
       throwIfNotFound: true,
     });
-    }
 
     const isValidPassword = await this.validatePassword(
-      user.password,
+      user!.password,
       password,
     );
     if (!isValidPassword) {
       throw new UserNotValidPasswordException();
     }
 
-    const payload = JwtPayload.from(user);
+    const payload = JwtPayload.from(user!);
     return await this.generateTokenUseCase.execute(payload);
   }
 

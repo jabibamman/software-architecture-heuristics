@@ -1,39 +1,41 @@
 import { Reservation } from '../entities/reservation.entity';
+import { Role } from '@/modules/users/domain/value-objects/role.value-object';
 
 export class ReservationPolicy {
-  static validateReservation(reservation: Reservation): void {
+  static validateReservation(reservation: Reservation, role: Role): void {
+    if (role === Role.SECRETARY) {
+      return;
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
     const startDate = new Date(reservation.startDate);
     startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(reservation.endDate);
+    endDate.setHours(0, 0, 0, 0);
+
     if (startDate < today) {
       throw new Error('Reservation start date cannot be in the past.');
     }
 
-    if (reservation.startDate > reservation.endDate) {
+    if (startDate.getTime() > endDate.getTime()) {
       throw new Error(
         'Reservation start date must be on or before the end date.',
       );
     }
 
-    const businessDays = ReservationPolicy.countBusinessDays(
-      reservation.startDate,
-      reservation.endDate,
-    );
-    let maxDaysAllowed = 5;
-    // TODO: (role not implemented yet) : if (userRole === 'manager') maxDaysAllowed = 30;
-    if (businessDays > maxDaysAllowed) {
-      throw new Error(
-        `Reservation cannot span more than ${maxDaysAllowed} business days.`,
-      );
+    if (role === Role.EMPLOYEE) {
+      const days = this.countBusinessDays(startDate, endDate);
+      if (days > 5) {
+        throw new Error(`Cannot book more than 5 business days.`);
+      }
     }
 
     if (reservation.needsCharger) {
-      const rowLetter = reservation.slotId.charAt(0).toUpperCase();
-      if (rowLetter !== 'A' && rowLetter !== 'F') {
-        throw new Error(
-          'Parking slot must be in row A or F when a charger is needed.',
-        );
+      const row = reservation.slotId.charAt(0).toUpperCase();
+      if (row !== 'A' && row !== 'F') {
+        throw new Error('Charger only in rows A or F.');
       }
     }
   }
@@ -41,11 +43,8 @@ export class ReservationPolicy {
   private static countBusinessDays(start: Date, end: Date): number {
     let count = 0;
     const date = new Date(start);
-    date.setHours(0, 0, 0, 0);
-    const endDate = new Date(end);
-    endDate.setHours(0, 0, 0, 0);
-    while (date <= endDate) {
-      const day = date.getDay(); // 0=Dimanche, 6=Samedi, 1-5 = Lundi-Vendredi
+    while (date <= end) {
+      const day = date.getDay(); // 0=Sun,6=Sat
       if (day !== 0 && day !== 6) {
         count++;
       }
@@ -65,7 +64,6 @@ export class ReservationPolicy {
     if (startDay.getTime() !== today.getTime()) {
       throw new Error('Check-in must happen on the reservation start date.');
     }
-
     if (now.getHours() >= 11) {
       throw new Error('Check-in must occur before 11 AM.');
     }
@@ -79,11 +77,10 @@ export class ReservationPolicy {
     return reservations.filter((r) => {
       const startDay = new Date(r.startDate);
       startDay.setHours(0, 0, 0, 0);
-
-      const hour = now.getHours();
-
       return (
-        startDay.getTime() === today.getTime() && !r.checkedIn && hour >= 11
+        startDay.getTime() === today.getTime() &&
+        !r.checkedIn &&
+        now.getHours() >= 11
       );
     });
   }

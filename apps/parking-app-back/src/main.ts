@@ -33,8 +33,7 @@ async function bootstrap() {
     `📚 Documentation Swagger available on http://localhost:${port}/docs`,
   );
 
-  const createInitialUserUseCase = app.get(CreateInitialUserUseCase);
-  let user = await createInitialUserUseCase.execute();
-  logger.log(`🌱 Initial user created: ${user.email}`);
+  const seeder = app.get(CreateInitialUserUseCase);
+  await seeder.execute();
 }
 bootstrap();

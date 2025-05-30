@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { ManagerStats } from '@/types/dashboard'
-import { fetchManagerStats } from '@/services/dashboard.api'
+import { fetchManagerStats } from '@/services/stats.api'
 
 export const useDashboardStore = defineStore('dashboard', {
   state: () => ({
@@ -14,9 +14,8 @@ export const useDashboardStore = defineStore('dashboard', {
       this.error = ''
       try {
         this.stats = await fetchManagerStats()
-        console.log('this.stats', this.stats)
       } catch (e: any) {
-        this.error = e.message || 'Erreur de chargement'
+        this.error = e.response.data.message || 'Erreur de chargement'
       } finally {
         this.loading = false
       }

@@ -3,7 +3,7 @@
     <h1 class="text-4xl font-bold text-gray-800 mb-6">Tableau de bord Manager</h1>
 
     <div v-if="loading" class="text-gray-500">Chargement…</div>
-    <div v-else-if="error" class="text-red-600">Erreur : {{ error }}</div>
+    <div v-else-if="error" class="text-red-600">{{ error }}</div>
 
     <div v-else-if="!stats">
       <p class="text-yellow-600">Aucune donnée disponible.</p>

@@ -9,7 +9,7 @@
         <div class="flex items-center space-x-8">
           <nav class="space-x-4">
             <RouterLink
-              v-for="link in navLinks"
+              v-for="link in visibleLinks"
               :key="link.path"
               :to="link.path"
               class="text-gray-600 hover:text-primary transition"
@@ -18,6 +18,14 @@
               {{ link.label }}
             </RouterLink>
           </nav>
+          <div v-if="auth.isAuthenticated" class="flex items-center space-x-4">
+            <button
+              @click="onLogout"
+              class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded"
+            >
+              Logout
+            </button>
+          </div>
           <div
             class="flex items-center space-x-2 px-4 py-1 rounded-full"
             :class="{
@@ -52,21 +60,36 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { getHealth } from '@/services/health.api'
-//import ParkLogo from '@/assets/park-logo.svg?component' // SVG as component
+import { useAuthStore } from '@/stores/useAuthStore'
 
-// Nav links
-const navLinks = [
-  { path: '/', label: 'Home' },
-  { path: '/about', label: 'About' },
-  { path: '/login', label: 'Login' },
-  { path: '/stats', label: 'Stats' },
-  { path: '/dashboard', label: 'Dashboard' }, // TODO: if manager, show dashboard, else show stats
-  { path: '/reservations', label: 'Reservations' },
+const auth = useAuthStore()
+const router = useRouter()
+
+const allLinks = [
+  { path: '/',            label: 'Home',         auth: 'any' },
+  { path: '/about',       label: 'About',        auth: 'any' },
+  { path: '/login',       label: 'Login',        auth: 'guest' },
+  { path: '/register',    label: 'Register',     auth: 'guest' },
+  { path: '/reservations',label: 'Reservations', auth: 'user' },
+  { path: '/stats',       label: 'Stats',        auth: 'user' },
+  { path: '/dashboard',   label: 'Dashboard',    auth: 'user' },
 ]
 
-// Health status
+const visibleLinks = computed(() =>
+  allLinks.filter(link =>
+    link.auth === 'any'
+    || (link.auth === 'guest' && !auth.isAuthenticated)
+    || (link.auth === 'user' && auth.isAuthenticated)
+  )
+)
+
+async function onLogout() {
+  await auth.logout()
+  router.push({ name: 'home' })
+}
+
 const status = ref<'OK' | 'KO' | 'PENDING'>('PENDING')
 const statusLabel = computed(() => {
   return status.value === 'PENDING'
@@ -76,7 +99,6 @@ const statusLabel = computed(() => {
     : 'Offline'
 })
 
-// On mount, call health API
 onMounted(async () => {
   try {
     const res = await getHealth()
@@ -85,18 +107,17 @@ onMounted(async () => {
     status.value = 'KO'
   }
 })
+
+auth.initialize()
 </script>
 
-<style lang="css" scoped>
-/* Variables from tailwind.config.js */
+<style scoped>
 :root {
   --color-primary: theme('colors.primary');
 }
-
-/* Ensure perfect bounce timing */
 @keyframes bounce {
-  0%, 100% { transform: translateY(0) }
-  50% { transform: translateY(-4px) }
+  0%,100% { transform: translateY(0) }
+  50%    { transform: translateY(-4px) }
 }
 .animate-bounce {
   animation: bounce 1.5s infinite;

@@ -47,7 +47,7 @@ export class CreateReservationUseCase {
     );
 
     try {
-      ReservationPolicy.validateReservation(reservation);
+      ReservationPolicy.validateReservation(reservation, payload.role);
     } catch (err) {
       throw new ReservationBadRequestException(err.message);
     }
