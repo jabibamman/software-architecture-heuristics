@@ -17,7 +17,7 @@
 		"dev:back-front": "docker compose up -d postgres && concurrently \"pnpm dev:back\" \"pnpm dev:front\""
 	},
 	"devDependencies": {
-		"@nestjs/cli": "^11.0.7",
+		"@nestjs/cli": "^11.0.16",
 		"concurrently": "^9.1.2",
 		"eslint": "^9.0.0",
 		"prettier": "^3.0.0",
